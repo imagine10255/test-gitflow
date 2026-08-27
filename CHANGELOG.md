@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.6.1](https://github.com/imagine10255/test-gitflow/compare/v1.6.1-rc.0...v1.6.1) (2026-08-27)
+
 ## [1.6.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0...v1.6.1-rc.0) (2026-08-27)
 
 ### Bug Fixes
