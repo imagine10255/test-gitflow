@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.4.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.4.0-beta.0...v1.4.0-beta.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* **audit:** record deactivation events ([edc378c](https://github.com/imagine10255/test-gitflow/commit/edc378c6179e09fb0bda810d9bf49e40a86ed9d4))
+* **auth:** clear session on user deactivation ([bcaa8cf](https://github.com/imagine10255/test-gitflow/commit/bcaa8cfc880dc8c87f7421103c77cbd82ab1518a))
+* **avatar:** limit upload size to 2MB ([6832055](https://github.com/imagine10255/test-gitflow/commit/683205526d3557ad420ec41e72c2b415732edc02))
+* **user:** escape commas in CSV export ([adbad95](https://github.com/imagine10255/test-gitflow/commit/adbad957587eadd82237960c9bd0c9e7d21e6288))
+* **user:** reject duplicate emails on import ([7480eac](https://github.com/imagine10255/test-gitflow/commit/7480eac4f16eea130eff2c5726b2cbf8e0b4a9c0))
+* **user:** trim whitespace in email ([1249199](https://github.com/imagine10255/test-gitflow/commit/1249199a5f733f0e23a660c93638d67e92712f08))
+
+
+### Features
+
+* **user:** add export to CSV ([d4d7557](https://github.com/imagine10255/test-gitflow/commit/d4d755740e6328354db46361b10b4a9b4ea2bc0d))
+* **user:** add password reset flow ([2923681](https://github.com/imagine10255/test-gitflow/commit/2923681e3d8ac9c3ce4fdd67da7844311a896fef))
+
 ## [1.4.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.3.0...v1.4.0-beta.0) (2026-08-27)
 
 
