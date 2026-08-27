@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>發版流程 · Git Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EAECF0;
+    --card:#F7F8FA;
+    --ink:#161C26;
+    --ink-2:#4A5566;
+    --ink-3:#7B8698;
+    --rule:#CFD5DE;
+
+    --lab:#8892A2;
+    --qa:#B4691A;
+    --rel:#5D4FC4;
+    --live:#0E7A52;
+    --hot:#BC3B37;
+    --dev:#2159A5;
+
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --disp:"Archivo","Noto Sans TC",system-ui,sans-serif;
+    --body:"Noto Sans TC",system-ui,-apple-system,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:15px;
+    line-height:1.75;
+    letter-spacing:.01em;
+  }
+
+  .wrap{max-width:1320px;margin:0 auto;padding:0 24px 96px}
+
+  /* ---------- header ---------- */
+  .masthead{padding:64px 0 40px;border-bottom:2px solid var(--ink)}
+  .eyebrow{
+    font-family:var(--disp);font-weight:600;font-size:11px;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3);
+    margin:0 0 14px;
+  }
+  .masthead h1{
+    font-family:var(--disp);font-weight:700;
+    font-size:clamp(34px,6vw,60px);line-height:1.04;
+    letter-spacing:-.02em;margin:0 0 18px;
+  }
+  .masthead p{margin:0;max-width:60ch;color:var(--ink-2)}
+  .stack{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:26px;
+    font-family:var(--mono);font-size:12px;
+  }
+  .stack span{
+    border:1px solid var(--rule);background:var(--card);
+    padding:4px 10px;border-radius:2px;color:var(--ink-2);
+  }
+
+  /* ---------- section ---------- */
+  section{padding:56px 0 0}
+  .shead{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+  .snum{
+    font-family:var(--mono);font-size:12px;font-weight:700;
+    color:var(--ink-3);padding-top:4px;
+  }
+  h2{
+    font-family:var(--disp);font-weight:700;
+    font-size:clamp(21px,3vw,27px);letter-spacing:-.01em;margin:0;
+  }
+  .lede{margin:0 0 26px 30px;color:var(--ink-2);max-width:66ch}
+
+  /* ---------- env legend ---------- */
+  .envs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+  .env{background:var(--card);padding:20px 18px}
+  .env b{
+    display:flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.04em;
+  }
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .env .who{font-size:13px;color:var(--ink-2);margin:8px 0 12px}
+  .env dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12px}
+  .env dt{color:var(--ink-3)}
+  .env dd{margin:0;font-family:var(--mono);color:var(--ink)}
+
+  /* ---------- figure ---------- */
+  figure{margin:0}
+  .scroll{
+    overflow-x:auto;background:var(--card);
+    border:1px solid var(--rule);
+    -webkit-overflow-scrolling:touch;
+  }
+  .scroll svg{display:block;min-width:900px;width:100%;height:auto}
+  figcaption{
+    margin-top:10px;font-size:12.5px;color:var(--ink-3);
+    display:flex;gap:6px;
+  }
+  figcaption::before{content:"↑";font-family:var(--mono);color:var(--ink-3)}
+
+  /* svg type */
+  .lane-label{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.02em}
+  .ruler{font-family:var(--mono);font-size:10.5px;font-weight:500;fill:var(--ink-3);letter-spacing:.06em}
+  .band-label{font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+  .tagtext{font-family:var(--mono);font-size:11px;font-weight:700;fill:#fff}
+  .note{font-family:"Noto Sans TC",sans-serif;font-size:11.5px;fill:var(--ink-3)}
+  .note-em{font-family:"Noto Sans TC",sans-serif;font-size:11.5px;font-weight:700}
+
+  /* ---------- table ---------- */
+  .tbl{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);border:1px solid var(--rule)}
+  .tbl th,.tbl td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule)}
+  .tbl tbody tr:last-child td{border-bottom:0}
+  .tbl th{
+    font-family:var(--disp);font-size:11px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+    border-bottom:1px solid var(--ink);
+  }
+  .tbl code{font-family:var(--mono);font-size:12.5px}
+
+  /* ---------- rules ---------- */
+  .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+  .rule{background:var(--card);padding:22px 20px}
+  .rule .tag{
+    display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;
+    letter-spacing:.06em;padding:3px 8px;border-radius:2px;margin-bottom:12px;
+  }
+  .tag.open{background:rgba(180,105,26,.14);color:var(--qa)}
+  .tag.freeze{background:rgba(136,146,162,.18);color:#566173}
+  .rule p{margin:0;font-size:13.5px;color:var(--ink-2)}
+  .rule p strong{color:var(--ink)}
+
+  /* ---------- code ---------- */
+  pre{
+    margin:0;padding:20px 22px;overflow-x:auto;
+    background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--ink);
+    font-family:var(--mono);font-size:12.5px;line-height:1.85;
+    color:var(--ink);
+  }
+  pre .c{color:var(--ink-3)}
+  pre .k{color:var(--dev);font-weight:700}
+  pre .v{color:var(--rel);font-weight:700}
+  .codegroup{display:grid;gap:26px}
+  .codegroup h3{
+    font-family:var(--disp);font-size:12px;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-3);margin:0 0 10px;
+  }
+
+  /* ---------- pitfalls ---------- */
+  ol.pits{list-style:none;counter-reset:p;margin:0;padding:0;border-top:1px solid var(--rule)}
+  ol.pits li{
+    counter-increment:p;position:relative;
+    padding:20px 0 20px 54px;border-bottom:1px solid var(--rule);
+  }
+  ol.pits li::before{
+    content:counter(p,decimal-leading-zero);
+    position:absolute;left:0;top:20px;
+    font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3);
+  }
+  ol.pits h4{font-family:var(--body);font-size:15px;font-weight:700;margin:0 0 5px}
+  ol.pits p{margin:0;font-size:13.5px;color:var(--ink-2);max-width:70ch}
+  ol.pits code{font-family:var(--mono);font-size:12.5px;background:var(--card);padding:1px 5px;border:1px solid var(--rule)}
+
+  .warn{
+    margin-top:20px;padding:18px 20px;
+    background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--hot);
+    font-size:13.5px;color:var(--ink-2);
+  }
+  .warn b{color:var(--hot);font-family:var(--mono);font-size:12px;letter-spacing:.06em;display:block;margin-bottom:6px}
+  .warn code{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+
+  /* ---------- draw-in ---------- */
+  .draw{stroke-dasharray:1400;stroke-dashoffset:1400;animation:dash 1.5s cubic-bezier(.4,0,.2,1) forwards}
+  .d2{animation-delay:.18s}
+  .d3{animation-delay:.36s}
+  @keyframes dash{to{stroke-dashoffset:0}}
+  .pop{opacity:0;animation:pop .45s ease forwards}
+  @keyframes pop{to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){
+    .draw,.pop{animation:none;stroke-dashoffset:0;opacity:1}
+  }
+
+  @media (max-width:640px){
+    .wrap{padding:0 16px 64px}
+    .masthead{padding:40px 0 30px}
+    .lede{margin-left:0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Release Workflow · GitLab CI · 私有雲部署</p>
+  <h1>發版流程<br>與分支線圖</h1>
+  <p>單一 live 網站,四個環境,七天一循環。版號由 release-it 管理,tag 決定部署到哪。</p>
+  <div class="stack">
+    <span>release-it</span><span>conventional-commits</span><span>GitLab CI</span><span>lab / qa / release / live</span>
+  </div>
+</header>
+
+<!-- ══════════ 1 環境 ══════════ -->
+<section>
+  <div class="shead"><span class="snum">01</span><h2>四個環境</h2></div>
+  <p class="lede">lab 是免洗的,merge 進 <code style="font-family:var(--mono);font-size:13px">test-lab</code> 就部署、不打 tag。artifact 一律永久保存。只有 qa 以上才留 tag,因為那些是別人驗過、需要追溯的版本。</p>
+
+  <div class="envs">
+    <div class="env">
+      <b><i class="dot" style="background:var(--lab)"></i>lab</b>
+      <div class="who">自己隨便測</div>
+      <dl>
+        <dt>觸發</dt><dd>merge test-lab</dd>
+        <dt>版號</dt><dd>—</dd>
+      </dl>
+    </div>
+    <div class="env">
+      <b><i class="dot" style="background:var(--qa)"></i>qa</b>
+      <div class="who">QA 品管驗證</div>
+      <dl>
+        <dt>觸發</dt><dd>tag -beta.N</dd>
+        <dt>版號</dt><dd>1.0.0-beta.3</dd>
+      </dl>
+    </div>
+    <div class="env">
+      <b><i class="dot" style="background:var(--rel)"></i>release</b>
+      <div class="who">客戶驗收</div>
+      <dl>
+        <dt>觸發</dt><dd>tag -rc.N</dd>
+        <dt>版號</dt><dd>1.0.0-rc.0</dd>
+      </dl>
+    </div>
+    <div class="env">
+      <b><i class="dot" style="background:var(--live)"></i>live</b>
+      <div class="who">客戶正式使用</div>
+      <dl>
+        <dt>觸發</dt><dd>tag v1.0.0 · 手動</dd>
+        <dt>版號</dt><dd>1.0.0</dd>
+      </dl>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-size:16px;font-weight:700;margin:38px 0 8px">
+    <code style="font-family:var(--mono);font-size:15px">test-lab</code> 是單向沙盒
+  </h3>
+  <p class="lede" style="margin-left:0">任何東西都可以 merge <strong>進去</strong>測,但 <code style="font-family:var(--mono);font-size:13px">test-lab</code> <strong>永遠不 merge 出來</strong>。上面可能混著還沒驗過、甚至最後不會出的東西。</p>
+
+  <figure>
+  <div class="scroll">
+  <svg viewBox="0 0 1280 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="test-lab 單向沙盒示意圖">
+    <text class="lane-label" x="30" y="66" fill="var(--dev)">feature/*</text>
+    <text class="lane-label" x="30" y="151" fill="var(--rel)">release/1.0</text>
+    <text class="lane-label" x="30" y="236" fill="var(--hot)">hotfix/*</text>
+
+    <line class="draw" x1="150" y1="60" x2="400" y2="60" stroke="var(--dev)" stroke-width="3.5" stroke-linecap="round"/>
+    <line class="draw" x1="150" y1="145" x2="400" y2="145" stroke="var(--rel)" stroke-width="3.5" stroke-linecap="round"/>
+    <line class="draw" x1="150" y1="230" x2="400" y2="230" stroke="var(--hot)" stroke-width="3.5" stroke-linecap="round"/>
+
+    <path class="draw d2" d="M400,60 C480,60 490,110 560,145" fill="none" stroke="var(--dev)" stroke-width="2.6"/>
+    <path class="draw d2" d="M400,145 L560,145" fill="none" stroke="var(--rel)" stroke-width="2.6"/>
+    <path class="draw d2" d="M400,230 C480,230 490,180 560,145" fill="none" stroke="var(--hot)" stroke-width="2.6"/>
+    <polygon points="568,145 556,139 556,151" fill="var(--ink-2)"/>
+
+    <rect x="580" y="118" width="176" height="54" rx="3" fill="var(--lab)"/>
+    <text class="tagtext" x="668" y="150" text-anchor="middle" style="font-size:14px">test-lab</text>
+
+    <path class="draw d3" d="M756,145 L950,145" fill="none" stroke="var(--lab)" stroke-width="3.5" stroke-linecap="round"/>
+    <polygon points="958,145 946,139 946,151" fill="var(--lab)"/>
+    <rect x="968" y="122" width="120" height="46" rx="3" fill="none" stroke="var(--lab)" stroke-width="2" stroke-dasharray="6 4"/>
+    <text class="lane-label" x="1028" y="151" text-anchor="middle" fill="#566173">lab 環境</text>
+
+    <!-- forbidden return -->
+    <path d="M668,118 C668,52 520,40 420,40" fill="none" stroke="var(--hot)" stroke-width="2.2" stroke-dasharray="6 5" opacity=".85"/>
+    <g stroke="var(--hot)" stroke-width="3" stroke-linecap="round">
+      <line x1="530" y1="26" x2="548" y2="48"/>
+      <line x1="548" y1="26" x2="530" y2="48"/>
+    </g>
+    <text class="note-em" x="566" y="42" fill="var(--hot)">不回流到任何分支</text>
+
+    <text class="note" x="580" y="200">衝突隨便解 · 歷史不重要 · 每循環 reset --hard 一次</text>
+  </svg>
+  </div>
+  <figcaption>merge 出去就把實驗性 commit 帶進正式流程了。這條線要從流程上封死。</figcaption>
+  </figure>
+
+  <div class="codegroup" style="margin-top:24px">
+    <pre><span class="c"># 想測什麼就 merge 什麼</span>
+git switch test-lab
+git merge --no-ff feature/export-filter
+git push                                <span class="c"># → 自動部 lab</span>
+
+<span class="c"># 每循環開始時重置一次,保持乾淨</span>
+git switch test-lab
+git reset --hard origin/develop &amp;&amp; git push --force</pre>
+  </div>
+
+  <div class="warn">
+    <b>分支保護設定</b>
+    <code>test-lab</code> 要<strong>允許 force push</strong>(才能定期重置),但<strong>不要</strong>設成任何 MR 的預設 target。有人手滑把 <code>test-lab</code> merge 進 develop 會很難清。
+  </div>
+</section>
+
+<!-- ══════════ 2 時間窗 ══════════ -->
+<section>
+  <div class="shead"><span class="snum">02</span><h2>時間窗控制</h2></div>
+  <p class="lede">用日曆給出判斷基準,實際擋不擋由審查者決定。有基準,「這個很急」才有得討論。</p>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="tag open">週三 PM → 週五 PM</span>
+      <p><strong>收 feat + fix。</strong>新功能 merge 進 release 分支,發一顆 beta 進 qa。窗口 2.5 天。</p>
+    </div>
+    <div class="rule">
+      <span class="tag freeze">週五 PM → 隔週三 AM</span>
+      <p><strong>只收 fix。</strong>凍結 5.5 天。凍結期的 <code>feat</code> MR 要不要放行,由審查者判斷。</p>
+    </div>
+    <div class="rule">
+      <span class="tag" style="background:rgba(93,79,196,.13);color:var(--rel)">隔週三 AM</span>
+      <p><strong>發 rc,同時開下一條 release 分支。</strong>舊分支保持乾淨到上線,新功能進新分支。</p>
+    </div>
+  </div>
+
+  <p class="lede" style="margin:24px 0 0">兩個階段收的東西不同,但<strong>流程完全一樣</strong>:merge 進 <code style="font-family:var(--mono);font-size:13px">test-lab</code> 自己驗 → merge 進 release 分支 → 發 <code style="font-family:var(--mono);font-size:13px">beta.N</code> 進 qa。不因為是新功能就重開分支或重置測試基準。</p>
+  <p class="lede" style="margin:12px 0 0"><code style="font-family:var(--mono);font-size:13px">test-lab</code> 這道關卡的好處是:<strong>功能可以在進 release 分支之前先驗一輪</strong>。驗壞了就不 merge,release 分支不會被污染。</p>
+</section>
+
+<!-- ══════════ 3 主線圖 ══════════ -->
+<section>
+  <div class="shead"><span class="snum">03</span><h2>單一循環線圖</h2></div>
+  <p class="lede">標籤顏色 = 部署環境。identifier 只切一次(<code style="font-family:var(--mono);font-size:13px">beta → rc</code>),單向不回頭。</p>
+
+  <figure>
+  <div class="scroll">
+  <svg viewBox="0 0 1280 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="單一循環的 git 分支線圖">
+    <!-- bands -->
+    <rect x="215" y="58" width="270" height="400" fill="var(--qa)" opacity=".07"/>
+    <rect x="485" y="58" width="510" height="400" fill="var(--lab)" opacity=".09"/>
+    <line x1="215" y1="58" x2="215" y2="458" stroke="var(--qa)" stroke-width="1.5" opacity=".5"/>
+    <line x1="485" y1="58" x2="485" y2="458" stroke="var(--lab)" stroke-width="1.5" opacity=".6"/>
+    <line x1="995" y1="58" x2="995" y2="458" stroke="var(--rel)" stroke-width="1.5" opacity=".5"/>
+
+    <text class="band-label" x="230" y="76" fill="var(--qa)">窗口期 · feat + fix</text>
+    <text class="band-label" x="500" y="76" fill="#566173">凍結期 · 只收 fix</text>
+
+    <!-- ruler -->
+    <text class="ruler" x="215" y="46" text-anchor="middle">週三 PM</text>
+    <text class="ruler" x="485" y="46" text-anchor="middle">週五 PM</text>
+    <text class="ruler" x="995" y="46" text-anchor="middle">隔週三 AM</text>
+
+    <!-- lane labels -->
+    <text class="lane-label" x="16" y="150" fill="var(--dev)">develop</text>
+    <text class="lane-label" x="16" y="290" fill="var(--rel)">release/1.0</text>
+    <text class="lane-label" x="16" y="430" fill="var(--live)">main</text>
+
+    <!-- develop line -->
+    <line class="draw" x1="130" y1="145" x2="1265" y2="145" stroke="var(--dev)" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- main line -->
+    <line class="draw d3" x1="130" y1="425" x2="1265" y2="425" stroke="var(--live)" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- release lane -->
+    <path class="draw d2" d="M215,145 C215,215 265,215 265,285 L265,285 L1105,285" fill="none" stroke="var(--rel)" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- merge to main -->
+    <path class="draw d3" d="M1105,285 C1105,355 1155,355 1155,425" fill="none" stroke="var(--live)" stroke-width="3.5" stroke-linecap="round"/>
+
+    <!-- feature merges down into release (window only) -->
+    <g opacity=".85">
+      <path d="M300,145 C300,200 330,230 330,278" fill="none" stroke="var(--dev)" stroke-width="2"/>
+      <path d="M390,145 C390,200 420,230 420,278" fill="none" stroke="var(--dev)" stroke-width="2"/>
+      <circle cx="300" cy="145" r="4" fill="var(--dev)"/>
+      <circle cx="390" cy="145" r="4" fill="var(--dev)"/>
+    </g>
+    <text class="note" x="330" y="200" text-anchor="middle">feat</text>
+    <text class="note" x="420" y="200" text-anchor="middle">feat</text>
+
+    <!-- merge-back to develop -->
+    <g>
+      <path d="M600,285 C600,225 645,195 645,152" fill="none" stroke="var(--ink-3)" stroke-width="1.6" stroke-dasharray="5 4"/>
+      <path d="M880,285 C880,225 925,195 925,152" fill="none" stroke="var(--ink-3)" stroke-width="1.6" stroke-dasharray="5 4"/>
+      <path d="M1155,425 C1155,360 1205,300 1205,152" fill="none" stroke="var(--ink-3)" stroke-width="1.6" stroke-dasharray="5 4"/>
+      <polygon points="645,146 641,155 649,155" fill="var(--ink-3)"/>
+      <polygon points="925,146 921,155 929,155" fill="var(--ink-3)"/>
+      <polygon points="1205,146 1201,155 1209,155" fill="var(--ink-3)"/>
+    </g>
+    <text class="note" x="652" y="234">回補 develop · 當天做</text>
+
+    <!-- release commits + tag flags -->
+    <g class="pop" style="animation-delay:.9s">
+      <!-- beta.0 -->
+      <circle cx="330" cy="285" r="7" fill="var(--rel)"/>
+      <rect x="298" y="308" width="64" height="24" rx="3" fill="var(--qa)"/>
+      <text class="tagtext" x="330" y="324" text-anchor="middle">beta.0</text>
+      <!-- beta.1 -->
+      <circle cx="420" cy="285" r="7" fill="var(--rel)"/>
+      <rect x="388" y="308" width="64" height="24" rx="3" fill="var(--qa)"/>
+      <text class="tagtext" x="420" y="324" text-anchor="middle">beta.1</text>
+      <!-- beta.2 -->
+      <circle cx="600" cy="285" r="7" fill="var(--rel)"/>
+      <rect x="568" y="308" width="64" height="24" rx="3" fill="var(--qa)"/>
+      <text class="tagtext" x="600" y="324" text-anchor="middle">beta.2</text>
+      <!-- beta.3 -->
+      <circle cx="740" cy="285" r="7" fill="var(--rel)"/>
+      <rect x="708" y="308" width="64" height="24" rx="3" fill="var(--qa)"/>
+      <text class="tagtext" x="740" y="324" text-anchor="middle">beta.3</text>
+      <!-- beta.4 -->
+      <circle cx="880" cy="285" r="7" fill="var(--rel)"/>
+      <rect x="848" y="308" width="64" height="24" rx="3" fill="var(--qa)"/>
+      <text class="tagtext" x="880" y="324" text-anchor="middle">beta.4</text>
+      <!-- rc.0 -->
+      <circle cx="1035" cy="285" r="8" fill="var(--rel)"/>
+      <rect x="1003" y="308" width="64" height="24" rx="3" fill="var(--rel)"/>
+      <text class="tagtext" x="1035" y="324" text-anchor="middle">rc.0</text>
+      <!-- live -->
+      <circle cx="1155" cy="425" r="9" fill="var(--live)"/>
+      <rect x="1115" y="448" width="80" height="24" rx="3" fill="var(--live)"/>
+      <text class="tagtext" x="1155" y="464" text-anchor="middle">v1.0.0</text>
+    </g>
+
+    <text class="note" x="330" y="352">↑ 部署到 qa</text>
+    <text class="note" x="1003" y="352">↑ 部署到 release</text>
+    <text class="note-em" x="1115" y="492" fill="var(--live)">↑ 手動確認才上 live</text>
+  </svg>
+  </div>
+  <figcaption>虛線是回補。release 分支每次 commit 後當天 merge 回 develop,不要等最後一起做。rc 之後只有客戶在測,QA 已經退場。</figcaption>
+  </figure>
+
+  <div class="warn">
+    <b>rc 階段不回頭</b>
+    semver 的 pre-release identifier 是字母序比大小,<code>beta &lt; rc</code>,同一個 patch 內發完 <code>rc.0</code> 就不能再回去發 <code>beta.N</code>。所以 rc 階段的 bug 一律發 <code>rc.N+1</code> 給客戶,<strong>QA 不介入</strong>。<br><br>
+    如果修正大到需要 QA 重驗,就在<strong>同一條 <code>release/1.0</code></strong> 上升 patch、切回 beta ── <code>npm run release:beta -- patch</code> 發出 <code>1.0.1-beta.0</code>,重走 qa → rc。patch 升上去了,版號沒有倒退。<br><br>
+    <span style="color:var(--ink-3)">這就是分支名用兩碼的原因:<code>release/1.0</code> 裡面跑到 <code>1.0.3</code> 都還合理。</span>
+  </div>
+</section>
+
+<!-- ══════════ 4 雙分支 ══════════ -->
+<section>
+  <div class="shead"><span class="snum">04</span><h2>兩條 release 分支重疊</h2></div>
+  <p class="lede">進入 rc 之後就開新分支收新功能,舊分支保持乾淨到上線。兩條會平行存在幾天。</p>
+
+  <figure>
+  <div class="scroll">
+  <svg viewBox="0 0 1280 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="兩條 release 分支重疊期的線圖">
+    <text class="lane-label" x="16" y="70" fill="var(--dev)">develop</text>
+    <text class="lane-label" x="16" y="180" fill="var(--rel)">release/1.0</text>
+    <text class="lane-label" x="16" y="300" fill="var(--rel)">release/1.1</text>
+    <text class="lane-label" x="16" y="418" fill="var(--live)">main</text>
+
+    <line class="draw" x1="130" y1="65" x2="1265" y2="65" stroke="var(--dev)" stroke-width="3.5" stroke-linecap="round"/>
+    <line class="draw d3" x1="130" y1="413" x2="1265" y2="413" stroke="var(--live)" stroke-width="3.5" stroke-linecap="round"/>
+
+    <!-- release/1.0 -->
+    <path class="draw d2" d="M200,65 C200,120 240,120 240,175 L790,175" fill="none" stroke="var(--rel)" stroke-width="3.5" stroke-linecap="round" opacity=".55"/>
+    <path class="draw d3" d="M790,175 C790,290 840,300 840,413" fill="none" stroke="var(--live)" stroke-width="3.5" stroke-linecap="round"/>
+
+    <!-- release/1.1 -->
+    <path class="draw d3" d="M480,65 C480,180 520,190 520,295 L1150,295" fill="none" stroke="var(--rel)" stroke-width="3.5" stroke-linecap="round"/>
+    <path class="draw d3" d="M1150,295 C1150,360 1195,360 1195,413" fill="none" stroke="var(--live)" stroke-width="3.5" stroke-linecap="round"/>
+
+    <!-- tags 1.0 -->
+    <g class="pop" style="animation-delay:.8s">
+      <circle cx="300" cy="175" r="7" fill="var(--rel)"/>
+      <rect x="266" y="140" width="68" height="23" rx="3" fill="var(--qa)"/>
+      <text class="tagtext" x="300" y="156" text-anchor="middle">beta.N</text>
+
+      <circle cx="480" cy="175" r="8" fill="var(--rel)"/>
+      <rect x="450" y="140" width="60" height="23" rx="3" fill="var(--rel)"/>
+      <text class="tagtext" x="480" y="156" text-anchor="middle">rc.0</text>
+
+      <circle cx="660" cy="175" r="8" fill="var(--rel)"/>
+      <rect x="630" y="140" width="60" height="23" rx="3" fill="var(--rel)"/>
+      <text class="tagtext" x="660" y="156" text-anchor="middle">rc.1</text>
+
+      <circle cx="840" cy="413" r="9" fill="var(--live)"/>
+      <rect x="800" y="436" width="80" height="24" rx="3" fill="var(--live)"/>
+      <text class="tagtext" x="840" y="452" text-anchor="middle">v1.0.0</text>
+
+      <circle cx="700" cy="295" r="7" fill="var(--rel)"/>
+      <rect x="666" y="260" width="68" height="23" rx="3" fill="var(--qa)"/>
+      <text class="tagtext" x="700" y="276" text-anchor="middle">beta.0</text>
+
+      <circle cx="1030" cy="295" r="8" fill="var(--rel)"/>
+      <rect x="1000" y="260" width="60" height="23" rx="3" fill="var(--rel)"/>
+      <text class="tagtext" x="1030" y="276" text-anchor="middle">rc.0</text>
+
+      <circle cx="1195" cy="413" r="9" fill="var(--live)"/>
+      <rect x="1155" y="436" width="80" height="24" rx="3" fill="var(--live)"/>
+      <text class="tagtext" x="1195" y="452" text-anchor="middle">v1.1.0</text>
+    </g>
+
+    <text class="note" x="490" y="118">↓ 發 rc 的同時開下一條分支</text>
+
+    <!-- 三段回補 -->
+    <g>
+      <path d="M660,175 C660,130 585,110 585,72" fill="none" stroke="var(--hot)" stroke-width="2" stroke-dasharray="5 4"/>
+      <polygon points="585,64 580,74 590,74" fill="var(--hot)"/>
+      <path d="M600,65 C600,150 610,200 610,288" fill="none" stroke="var(--hot)" stroke-width="2" stroke-dasharray="5 4"/>
+      <polygon points="610,296 605,286 615,286" fill="var(--hot)"/>
+      <circle cx="600" cy="65" r="5" fill="var(--hot)"/>
+    </g>
+    <text class="note-em" x="622" y="215" fill="var(--hot)">rc 的 bug 要補三個地方</text>
+    <text class="note" x="622" y="232">release/1.0 → develop → release/1.1</text>
+  </svg>
+  </div>
+  <figcaption>紅色虛線是最容易漏的那一段。網站是單一 live,蓋回去直接影響所有使用者,沒有緩衝。</figcaption>
+  </figure>
+
+  <div class="codegroup" style="margin-top:26px">
+  <pre><span class="c"># release/1.0 在 rc 階段修 bug</span>
+git switch release/1.0 &amp;&amp; git commit -m <span class="v">"fix: ..."</span> &amp;&amp; git push
+npm run release:rc                                    <span class="c"># v1.0.0-rc.1</span>
+
+git switch develop     &amp;&amp; git merge --no-ff release/1.0   <span class="c"># ①</span>
+git switch release/1.1 &amp;&amp; git merge --no-ff develop       <span class="c"># ② 最容易漏</span></pre>
+  </div>
+</section>
+
+<!-- ══════════ 5 hotfix ══════════ -->
+<section>
+  <div class="shead"><span class="snum">05</span><h2>Hotfix</h2></div>
+  <p class="lede">單一 live 網站,<code style="font-family:var(--mono);font-size:13px">main</code> 永遠等於 live 現況,所以 hotfix 直接從 main 開。版號走第三碼。</p>
+
+  <figure>
+  <div class="scroll">
+  <svg viewBox="0 0 1280 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="hotfix 分支線圖">
+    <text class="lane-label" x="16" y="80" fill="var(--live)">main</text>
+    <text class="lane-label" x="16" y="205" fill="var(--hot)">hotfix/1.0.1</text>
+    <text class="lane-label" x="16" y="330" fill="var(--dev)">develop</text>
+
+    <line class="draw" x1="150" y1="75" x2="1265" y2="75" stroke="var(--live)" stroke-width="3.5" stroke-linecap="round"/>
+    <line class="draw d3" x1="150" y1="325" x2="1265" y2="325" stroke="var(--dev)" stroke-width="3.5" stroke-linecap="round"/>
+    <path class="draw d2" d="M260,75 C260,135 300,140 300,200 L880,200" fill="none" stroke="var(--hot)" stroke-width="3.5" stroke-linecap="round"/>
+    <path class="draw d3" d="M880,200 C880,140 920,135 920,75" fill="none" stroke="var(--live)" stroke-width="3.5" stroke-linecap="round"/>
+
+    <g class="pop" style="animation-delay:.8s">
+      <circle cx="260" cy="75" r="9" fill="var(--live)"/>
+      <rect x="220" y="34" width="80" height="24" rx="3" fill="var(--live)"/>
+      <text class="tagtext" x="260" y="50" text-anchor="middle">v1.0.0</text>
+
+      <circle cx="420" cy="200" r="7" fill="var(--hot)"/>
+      <text class="note" x="420" y="238" text-anchor="middle">fix → lab 自己驗</text>
+
+      <circle cx="640" cy="200" r="8" fill="var(--hot)"/>
+      <rect x="602" y="228" width="76" height="24" rx="3" fill="var(--rel)"/>
+      <text class="tagtext" x="640" y="244" text-anchor="middle">1.0.1-rc.0</text>
+      <text class="note" x="640" y="272" text-anchor="middle">客戶驗 · 系統當掉可跳過</text>
+
+      <circle cx="920" cy="75" r="9" fill="var(--live)"/>
+      <rect x="880" y="34" width="80" height="24" rx="3" fill="var(--live)"/>
+      <text class="tagtext" x="920" y="50" text-anchor="middle">v1.0.1</text>
+    </g>
+
+    <g>
+      <path d="M920,75 C920,180 985,220 985,318" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-dasharray="5 4"/>
+      <polygon points="985,326 980,316 990,316" fill="var(--ink-3)"/>
+    </g>
+    <text class="note" x="1000" y="300">回補 develop</text>
+    <text class="note-em" x="1000" y="345" fill="var(--hot)">→ 再補 release/1.1</text>
+  </svg>
+  </div>
+  <figcaption>hotfix 期間如果 release/1.1 已經在跑 beta,那條也要補,不然 1.1.0 上線會把修好的 bug 蓋回去。</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ 6 版號 ══════════ -->
+<section>
+  <div class="shead"><span class="snum">06</span><h2>版號規則</h2></div>
+
+  <table class="tbl">
+    <thead><tr><th>情況</th><th>版號</th><th>說明</th></tr></thead>
+    <tbody>
+      <tr><td>窗口期進 feat</td><td><code>beta.N+1</code></td><td>數字往上加</td></tr>
+      <tr><td>凍結期修 fix</td><td><code>beta.N+1</code></td><td>跟 feat 同一套流程</td></tr>
+      <tr><td>QA 要重驗</td><td><code>beta.N+1</code></td><td>不用動 patch</td></tr>
+      <tr><td>發給客戶</td><td><code>rc.0</code></td><td>identifier 只切這一次</td></tr>
+      <tr><td>rc 有小 bug</td><td><code>rc.N+1</code></td><td>客戶繼續測,QA 不介入</td></tr>
+      <tr><td>rc 的修正要 QA 重驗</td><td><code>1.0.1-beta.0</code></td><td>同一條 release/1.0,升 patch 切回 beta</td></tr>
+      <tr><td>上線</td><td><code>1.0.0</code></td><td>手動確認</td></tr>
+      <tr><td>live 出事</td><td><code>1.0.1</code></td><td>patch 位給 hotfix 和 rc 重來</td></tr>
+      <tr><td>下一循環</td><td><code>1.1.0</code></td><td>含 feat 所以是 minor</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════ 7 指令 ══════════ -->
+<section>
+  <div class="shead"><span class="snum">07</span><h2>指令速查</h2></div>
+
+  <div class="codegroup">
+    <div>
+      <h3>package.json</h3>
+      <pre>"release:beta": "release-it --preRelease=beta --no-plugins.@release-it/conventional-changelog.infile",
+"release:rc":   "release-it --preRelease=rc   --no-plugins.@release-it/conventional-changelog.infile",
+"release:live": "release-it"</pre>
+    </div>
+
+    <div>
+      <h3>一個循環</h3>
+      <pre><span class="c"># ── 週三 AM · 開分支 + 重置 test-lab ──</span>
+git switch -c release/1.0 develop
+git push -u origin release/1.0
+
+git switch test-lab
+git reset --hard origin/develop &amp;&amp; git push --force
+
+<span class="c"># ── 窗口期 · 收 feat ──</span>
+git switch test-lab
+git merge --no-ff feature/export-filter
+git push                                       <span class="c"># → 自動部 lab,自己先驗</span>
+
+<span class="c"># 驗過了才進 release 分支</span>
+git switch release/1.0
+git merge --no-ff feature/export-filter
+npm run release:beta -- <span class="k">minor</span>                  <span class="c"># v1.0.0-beta.0</span>
+git switch develop &amp;&amp; git merge --no-ff release/1.0
+
+<span class="c"># ── 凍結期 · 修 bug ──</span>
+git switch -c fix/dropdown release/1.0
+git commit -m <span class="v">"fix: filter dropdown misaligned"</span>
+
+git switch test-lab &amp;&amp; git merge --no-ff fix/dropdown &amp;&amp; git push
+
+git switch release/1.0 &amp;&amp; git merge --no-ff fix/dropdown
+npm run release:beta                           <span class="c"># v1.0.0-beta.1</span>
+git switch develop &amp;&amp; git merge --no-ff release/1.0
+
+<span class="c"># ── 隔週三 AM · 發 rc ──</span>
+git switch release/1.0
+npm run release:rc                             <span class="c"># v1.0.0-rc.0</span>
+git switch -c release/1.1 develop              <span class="c"># 同時開下一輪</span>
+git push -u origin release/1.1
+
+<span class="c"># ── rc 過 · 上 live ──</span>
+git switch main &amp;&amp; git merge --no-ff release/1.0
+npm run release:live -- 1.0.0                  <span class="c"># v1.0.0 · CHANGELOG 生成</span>
+git switch develop     &amp;&amp; git merge --no-ff main
+git switch release/1.1 &amp;&amp; git merge --no-ff develop
+
+<span class="c"># ── 觀察一天沒事 · 砍分支 ──</span>
+git push origin --delete release/1.0</pre>
+    </div>
+
+    <div>
+      <h3>砍分支前的檢查</h3>
+      <pre>git branch --merged develop     | grep release/1.0   <span class="c"># 有輸出才安全</span>
+git branch --merged release/1.1 | grep release/1.0
+git tag -l <span class="v">"v1.0.0"</span></pre>
+    </div>
+
+    <div>
+      <h3>.gitlab-ci.yml · 環境路由</h3>
+      <pre>deploy:lab:
+  rules: [{ if: <span class="v">'$CI_COMMIT_BRANCH == "test-lab"'</span> }]
+
+deploy:qa:
+  rules: [{ if: <span class="v">'$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+-beta\.\d+$/'</span> }]
+
+deploy:release:
+  rules: [{ if: <span class="v">'$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+-rc\.\d+$/'</span> }]
+
+deploy:live:
+  rules:
+    - if: <span class="v">'$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'</span>       <span class="c"># 不含後綴才上 live</span>
+      when: <span class="k">manual</span></pre>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>第一顆 beta 要帶 minor</b>
+    每條 release 分支的第一次發版都要寫 <code>-- minor</code>。release-it 看到最新 tag 是上一版的 <code>rc.N</code>,自己算會接錯。之後就能自動遞增。
+  </div>
+</section>
+
+<!-- ══════════ 8 踩雷 ══════════ -->
+<section>
+  <div class="shead"><span class="snum">08</span><h2>容易出事的地方</h2></div>
+
+  <ol class="pits">
+    <li>
+      <h4>忘記回補</h4>
+      <p>release 分支修完的東西沒補進 develop 或下一條 release 分支,下一版把 bug 帶回去。建議加 CI 檢查:<code>main</code> 有新 commit 而目標分支沒有時發警告,比人記得可靠。</p>
+    </li>
+    <li>
+      <h4>平行期間的溝通</h4>
+      <p>qa 跑 <code>1.1.0-beta.0</code>、release 跑 <code>1.0.0-rc.1</code> 的時候,跟 QA 和客戶講話一定要帶版號。GitLab 的 Operations → Environments 頁面會顯示每個環境現在跑哪個版本,直接給連結最快。</p>
+    </li>
+    <li>
+      <h4>commit type 要照實寫</h4>
+      <p>流程上 feat 和 fix 一視同仁,但 commit message 還是要分。conventional-changelog 靠 type 分區塊,全寫 <code>fix:</code> 的話 CHANGELOG 只有 Bug Fixes 一節,客戶看不出這版加了什麼。</p>
+    </li>
+    <li>
+      <h4>窗口最後一天不進大功能</h4>
+      <p>週五進的 feat 只被測半天。週五只進小的,或者週五進的東西週一自己在 lab 完整回歸一次再交給 QA。</p>
+    </li>
+    <li>
+      <h4>破例次數要追蹤</h4>
+      <p>每個循環都有一兩次「這個真的很急」放行,那不是紀律問題,是窗口太短或週期太長。審查者連續三次覺得難判斷,就該調整窗口。</p>
+    </li>
+    <li>
+      <h4><code>test-lab</code> 不能 merge 出來</h4>
+      <p>那條分支上可能混著沒驗過、甚至最後不會出的東西。有人手滑 <code>git merge test-lab</code> 進 develop,會把實驗性 commit 帶進正式流程,而且很難清乾淨。在 CI 加一條檢查:<code>develop</code> / <code>release/*</code> / <code>main</code> 的 MR 來源是 <code>test-lab</code> 就直接擋。</p>
+    </li>
+    <li>
+      <h4>build 產物不保證一致</h4>
+      <p>qa 和 release 是兩次獨立 build,程式碼一樣但產物不保證 byte-identical。至少要:<code>package-lock.json</code> commit、build 用 <code>npm ci</code>。真的在意的話,每次 deploy 記錄產物 hash。</p>
+    </li>
+  </ol>
+</section>
+
+</div>
+</body>
+</html>
