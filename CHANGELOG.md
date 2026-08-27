@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.7.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v1.7.0-rc.0...v1.7.0-rc.1) (2026-08-27)
+
+## [1.7.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.7.0-rc.0...v1.7.0-rc.1) (2026-08-27)
+
+## [1.7.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.7.0-rc.0...v1.7.0-rc.1) (2026-08-27)
+
+### Features
+
+* **billing:** add invoice generation ([cf3a0a6](https://github.com/imagine10255/test-gitflow/commit/cf3a0a6a0f666c50c615872a0be5396f43a4fcf9))
+* **billing:** add tax calculation ([3e7e52c](https://github.com/imagine10255/test-gitflow/commit/3e7e52c3eae7f2ff95bd5ba3cd6b6c1a2074c300))
+
+## [1.6.1](https://github.com/imagine10255/test-gitflow/compare/v1.7.0-rc.0...v1.7.0-rc.1) (2026-08-27)
+
+## [1.6.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.7.0-rc.0...v1.7.0-rc.1) (2026-08-27)
+
+### Bug Fixes
+
+* **notify:** crash on empty recipient list ([919a7c0](https://github.com/imagine10255/test-gitflow/commit/919a7c06f8c846475d924f17c1dc0ad807540a9e))
+
 ## [1.7.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.7.0-beta.0...v1.7.0-rc.0) (2026-08-27)
 
 ## [1.7.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0...v1.7.0-beta.0) (2026-08-27)
