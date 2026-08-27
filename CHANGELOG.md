@@ -1,5 +1,16 @@
 # Changelog
 
+# [1.2.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.3...v1.2.0-rc.0) (2026-08-27)
+
+## [1.1.3](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.3...v1.2.0-rc.0) (2026-08-27)
+
+## [1.1.3-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.3...v1.2.0-rc.0) (2026-08-27)
+
+
+### Bug Fixes
+
+* null crash on empty dataset ([7bea8a1](https://github.com/imagine10255/test-gitflow/commit/7bea8a159c6ad23e9179e155852f447c8689e5f2))
+
 # [1.2.0-beta.3](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.2...v1.2.0-beta.3) (2026-08-27)
 
 
