@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.1.1-rc.1...v1.1.2-beta.0) (2026-08-27)
+
+
+### Bug Fixes
+
+* rewrite csv serializer for large datasets ([6707449](https://github.com/imagine10255/test-gitflow/commit/6707449721c57c60e30de6765c6f46bf84f128c1))
+
 ## [1.1.1-rc.1](https://github.com/imagine10255/test-gitflow/compare/v1.1.1-rc.0...v1.1.1-rc.1) (2026-08-27)
 
 
