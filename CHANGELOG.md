@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.6.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.6.0-beta.0...v1.6.0-beta.1) (2026-08-27)
+
+## [1.6.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0-beta.0...v1.6.0-beta.1) (2026-08-27)
+
+### Features
+
+* **notify:** add email notification ([aa59b5d](https://github.com/imagine10255/test-gitflow/commit/aa59b5d356f6898455152beb01cd228dc1f3161a))
+* **notify:** add SMS channel ([3b3a52f](https://github.com/imagine10255/test-gitflow/commit/3b3a52f1e8d7e993bb7b62ee5757fa7bf0338a35))
+
+## [1.5.1](https://github.com/imagine10255/test-gitflow/compare/v1.6.0-beta.0...v1.6.0-beta.1) (2026-08-27)
+
+## [1.5.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0-beta.0...v1.6.0-beta.1) (2026-08-27)
+
+### Bug Fixes
+
+* **report:** null guard on export ([661ec1d](https://github.com/imagine10255/test-gitflow/commit/661ec1da8cb0bcb32f62f7d91f193ddd32ac28f4))
+
 ## [1.6.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.5.0...v1.6.0-beta.0) (2026-08-27)
 
 ### Features
