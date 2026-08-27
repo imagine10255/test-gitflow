@@ -1,1 +1,1 @@
-// feat(notify): add email notification
+// fix: crash on empty notify list
