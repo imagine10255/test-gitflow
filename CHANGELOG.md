@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1](https://github.com/imagine10255/test-gitflow/compare/v1.5.1-rc.0...v1.5.1) (2026-08-27)
+
+## [1.5.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.5.0...v1.5.1-rc.0) (2026-08-27)
+
+### Bug Fixes
+
+* **report:** null guard on export ([661ec1d](https://github.com/imagine10255/test-gitflow/commit/661ec1da8cb0bcb32f62f7d91f193ddd32ac28f4))
+
 ## [1.5.0](https://github.com/imagine10255/test-gitflow/compare/v1.5.0-rc.0...v1.5.0) (2026-08-27)
 
 ## [1.5.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.5.0-beta.1...v1.5.0-rc.0) (2026-08-27)
