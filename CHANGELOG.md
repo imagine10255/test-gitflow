@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.4.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.3.0...v1.4.0-beta.0) (2026-08-27)
+
+
+### Bug Fixes
+
+* **audit:** handle empty action name ([1e307e4](https://github.com/imagine10255/test-gitflow/commit/1e307e438721bc89a723036881b241f478e349be))
+* **auth:** correct token expiry calculation ([46dea28](https://github.com/imagine10255/test-gitflow/commit/46dea282edf523089447118a1a49efd5697d07f0))
+* **user:** validate email format ([05e71d5](https://github.com/imagine10255/test-gitflow/commit/05e71d59b8bab7866ec76ad7ae1ecac09f0b6d03))
+
+
+### Features
+
+* **user:** add avatar upload ([e8825c5](https://github.com/imagine10255/test-gitflow/commit/e8825c581d06e0aae8a07e89367f7525d0fd084a))
+* **user:** add bulk import ([43e426c](https://github.com/imagine10255/test-gitflow/commit/43e426c1403f571eab111157ece11477990b790e))
+* **user:** add user deactivation ([1a1c2fd](https://github.com/imagine10255/test-gitflow/commit/1a1c2fd4ca0b254f42359a43fd5bbabb49948812))
+* **user:** add user profile model ([4ffc8c1](https://github.com/imagine10255/test-gitflow/commit/4ffc8c1fb6c1eb90188a778645a57e618be2e448))
+* **user:** add user search ([a17ebe7](https://github.com/imagine10255/test-gitflow/commit/a17ebe75c5a6c53cbb9578c5bd2320cfe1d48ef7))
+
 # [1.3.0](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-rc.1...v1.3.0) (2026-08-27)
 
 ## [1.3.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-rc.0...v1.3.0-rc.1) (2026-08-27)
