@@ -212,12 +212,26 @@ git switch release/1.1 && git merge --no-ff release/1.0   # 直接傳,不經過 
 >
 > 單一 release 分支時沒這個問題,走 develop 中轉是可以的。
 
-⚠️ **第二條 release 分支的第一顆 beta 要用完整寫法。** 實測 `npm run release:beta -- minor` 在這個情境會失敗:`develop` 若曾被回補成 prerelease 版號,`minor` 會被吃掉,算出跟 `release/1.0` 撞號的 tag。
+⚠️ **第二條 release 分支的第一顆 beta 必須明確指定版號。**
+
+因為照第 12 節「上線才承認」,`release/1.0` 沒上線前 `develop` 還停在**上一個正式版**(例如 `0.9.0`)。從那裡起跳算 minor 只會得到 `1.0.0-beta.0`——正是 `release/1.0` 已經佔用的版號。
+
+實測(`develop` = `1.6.1`、`release/1.7` 進行中):
+
+```
+npx release-it --increment=preminor --preReleaseId=beta   → 1.7.0-beta.0   ✗ 撞既有 tag
+npx release-it 1.8.0-beta.0                               → 1.8.0-beta.0   ✓
+```
+
+所以開第二條分支時:
 
 ```bash
 git switch -c release/1.1 develop
-npx release-it --increment=preminor --preReleaseId=beta --ci   # → 1.1.0-beta.0
+git push -u origin release/1.1
+npx release-it 1.1.0-beta.0 --ci        # 明確寫死,不要讓它自己算
 ```
+
+**單一 release 分支時沒這個問題**——`develop` 就是上一個正式版,`npm run release:beta -- minor` 正確算出下一個 minor。只有並行時第二條分支才要寫死版號。
 
 ---
 
