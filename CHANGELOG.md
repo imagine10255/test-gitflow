@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.0-beta.3](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.2...v1.2.0-beta.3) (2026-08-27)
+
+
+### Features
+
+* add PDF report ([1d6a6c8](https://github.com/imagine10255/test-gitflow/commit/1d6a6c8236c8ee9870ae5c4c81bf1d1358dcda1c))
+
 # [1.2.0-beta.2](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.1...v1.2.0-beta.2) (2026-08-27)
 
 
