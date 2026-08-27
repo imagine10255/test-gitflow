@@ -2,14 +2,27 @@
   "git": {
     "commitMessage": "chore(release): v${version}",
     "tagName": "v${version}",
-    "requireBranch": ["main", "release/*", "hotfix/*"],
+    "requireBranch": [
+      "main",
+      "release/*",
+      "hotfix/*"
+    ],
     "requireCleanWorkingDir": true,
-    "push": false
+    "push": true,
+    "requireUpstream": true
   },
-  "npm": { "publish": false },
-  "github": { "release": false },
+  "npm": {
+    "publish": false
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}"
+  },
   "hooks": {
-    "before:init": ["npm run lint --if-present", "npm test --if-present"]
+    "before:init": [
+      "npm run lint --if-present",
+      "npm test --if-present"
+    ]
   },
   "plugins": {
     "@release-it/conventional-changelog": {
