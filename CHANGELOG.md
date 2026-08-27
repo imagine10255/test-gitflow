@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.5.1](https://github.com/imagine10255/test-gitflow/compare/v1.5.1-rc.0...v1.5.1) (2026-08-27)
+
 ## [1.5.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.5.0...v1.5.1-rc.0) (2026-08-27)
 
 ### Bug Fixes
