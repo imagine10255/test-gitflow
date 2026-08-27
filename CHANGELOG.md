@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-rc.0...v1.3.0-rc.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* **audit:** fallback to anonymous for missing user ([94f3ff8](https://github.com/imagine10255/test-gitflow/commit/94f3ff8fc4736978421cc620602882f94bf34949))
+* **auth:** deny access when role is undefined ([f3da415](https://github.com/imagine10255/test-gitflow/commit/f3da415f8b042d8928352f5f248ac8dd470163f2))
+
 ## [1.3.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-beta.2...v1.3.0-rc.0) (2026-08-27)
 
 ## [1.3.0-beta.2](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-beta.1...v1.3.0-beta.2) (2026-08-27)
