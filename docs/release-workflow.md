@@ -264,6 +264,7 @@ git switch test-lab && git merge --no-ff hotfix/1.0.1 && git push   # → lab �
 
 git switch hotfix/1.0.1
 npm run release:beta -- patch             # → v1.0.1-beta.0,走 qa 環境(理由見下)
+                                          # patch 在這裡有效,因為起點 main 是穩定版
 
 npm run release:live -- 1.0.1             # → v1.0.1,在 hotfix 分支上發
 
