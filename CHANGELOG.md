@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0-beta.2](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-beta.1...v1.3.0-beta.2) (2026-08-27)
+
+
+### Features
+
+* **audit:** query logs by user ([bb7d46f](https://github.com/imagine10255/test-gitflow/commit/bb7d46fbe10a6eb70e8a48889aa8ea728a789591))
+* **audit:** record user actions ([f842a40](https://github.com/imagine10255/test-gitflow/commit/f842a40ac119ba1b10c9b6f0880bb2e2897eed9b))
+
 ## [1.3.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-beta.0...v1.3.0-beta.1) (2026-08-27)
 
 
