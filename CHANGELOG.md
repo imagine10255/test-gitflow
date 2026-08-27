@@ -1,5 +1,66 @@
 # Changelog
 
+## [1.4.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.1-beta.0...v1.4.1-rc.0) (2026-08-27)
+
+## [1.4.1-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.0-rc.0...v1.4.1-beta.0) (2026-08-27)
+
+### Features
+
+* **user:** add batched import with progress ([0d1720c](https://github.com/imagine10255/test-gitflow/commit/0d1720c037bc2ab596d1ea465c25845178a21edf))
+* **user:** generate import error report ([353a3dd](https://github.com/imagine10255/test-gitflow/commit/353a3dd88e641d5029ec031789a8857b1cb8e351))
+* **user:** retry failed import rows ([dad2354](https://github.com/imagine10255/test-gitflow/commit/dad2354f78edfa2bd5fcc7ce00c9fbcca45b8309))
+* **user:** rollback partial import on failure ([761f9a1](https://github.com/imagine10255/test-gitflow/commit/761f9a1c94a65991be441d0ce910516553da72e1))
+
+### Bug Fixes
+
+* **audit:** log import operations ([b19aea3](https://github.com/imagine10255/test-gitflow/commit/b19aea3ccfb1a78b84558cd991d6139333e724cb))
+* **user:** enforce 50k row import limit ([0bfea81](https://github.com/imagine10255/test-gitflow/commit/0bfea814c44f5970bbcba14fe3a4e2e7e171d02e))
+* **user:** handle BIG5 encoded import files ([ae60d56](https://github.com/imagine10255/test-gitflow/commit/ae60d56e06028f5a67b0b74e3ec8ab54a0478635))
+* **user:** release buffers after large import ([df03343](https://github.com/imagine10255/test-gitflow/commit/df03343977c2d1fe447d72614d25fd217d39b49b))
+
+### Code Refactoring
+
+* **user:** move validation into pipeline stages ([69bb4ef](https://github.com/imagine10255/test-gitflow/commit/69bb4ef1b0571e3c616f0e10840796efd4518af1))
+* **user:** rewrite bulk import as streaming parser ([be4ac05](https://github.com/imagine10255/test-gitflow/commit/be4ac05ca47f4f7c361b7371f03d510a524cb982))
+
+## [1.4.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.0-beta.1...v1.4.0-rc.0) (2026-08-27)
+
+## [1.4.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.4.0-beta.0...v1.4.0-beta.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* **audit:** record deactivation events ([edc378c](https://github.com/imagine10255/test-gitflow/commit/edc378c6179e09fb0bda810d9bf49e40a86ed9d4))
+* **auth:** clear session on user deactivation ([bcaa8cf](https://github.com/imagine10255/test-gitflow/commit/bcaa8cfc880dc8c87f7421103c77cbd82ab1518a))
+* **avatar:** limit upload size to 2MB ([6832055](https://github.com/imagine10255/test-gitflow/commit/683205526d3557ad420ec41e72c2b415732edc02))
+* **user:** escape commas in CSV export ([adbad95](https://github.com/imagine10255/test-gitflow/commit/adbad957587eadd82237960c9bd0c9e7d21e6288))
+* **user:** reject duplicate emails on import ([7480eac](https://github.com/imagine10255/test-gitflow/commit/7480eac4f16eea130eff2c5726b2cbf8e0b4a9c0))
+* **user:** trim whitespace in email ([1249199](https://github.com/imagine10255/test-gitflow/commit/1249199a5f733f0e23a660c93638d67e92712f08))
+
+
+### Features
+
+* **user:** add export to CSV ([d4d7557](https://github.com/imagine10255/test-gitflow/commit/d4d755740e6328354db46361b10b4a9b4ea2bc0d))
+* **user:** add password reset flow ([2923681](https://github.com/imagine10255/test-gitflow/commit/2923681e3d8ac9c3ce4fdd67da7844311a896fef))
+
+## [1.4.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.3.0...v1.4.0-beta.0) (2026-08-27)
+
+
+### Bug Fixes
+
+* **audit:** handle empty action name ([1e307e4](https://github.com/imagine10255/test-gitflow/commit/1e307e438721bc89a723036881b241f478e349be))
+* **auth:** correct token expiry calculation ([46dea28](https://github.com/imagine10255/test-gitflow/commit/46dea282edf523089447118a1a49efd5697d07f0))
+* **user:** validate email format ([05e71d5](https://github.com/imagine10255/test-gitflow/commit/05e71d59b8bab7866ec76ad7ae1ecac09f0b6d03))
+
+
+### Features
+
+* **user:** add avatar upload ([e8825c5](https://github.com/imagine10255/test-gitflow/commit/e8825c581d06e0aae8a07e89367f7525d0fd084a))
+* **user:** add bulk import ([43e426c](https://github.com/imagine10255/test-gitflow/commit/43e426c1403f571eab111157ece11477990b790e))
+* **user:** add user deactivation ([1a1c2fd](https://github.com/imagine10255/test-gitflow/commit/1a1c2fd4ca0b254f42359a43fd5bbabb49948812))
+* **user:** add user profile model ([4ffc8c1](https://github.com/imagine10255/test-gitflow/commit/4ffc8c1fb6c1eb90188a778645a57e618be2e448))
+* **user:** add user search ([a17ebe7](https://github.com/imagine10255/test-gitflow/commit/a17ebe75c5a6c53cbb9578c5bd2320cfe1d48ef7))
+
 # [1.3.0](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-rc.1...v1.3.0) (2026-08-27)
 
 ## [1.3.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-rc.0...v1.3.0-rc.1) (2026-08-27)
