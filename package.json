@@ -1,0 +1,31 @@
+{
+  "name": "test-gitflow",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "release:beta": "release-it --preRelease=beta --no-plugins.@release-it/conventional-changelog.infile --ci",
+    "release:rc": "release-it --preRelease=rc --no-plugins.@release-it/conventional-changelog.infile --ci",
+    "release:live": "release-it --ci"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imagine10255/test-gitflow.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/imagine10255/test-gitflow/issues"
+  },
+  "homepage": "https://github.com/imagine10255/test-gitflow#readme",
+  "private": "true",
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^11.0.1",
+    "release-it": "^20.2.1"
+  }
+}

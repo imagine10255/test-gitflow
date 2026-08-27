@@ -1,0 +1,20 @@
+{
+  "git": {
+    "commitMessage": "chore(release): v${version}",
+    "tagName": "v${version}",
+    "requireBranch": ["main", "release/*", "hotfix/*"],
+    "requireCleanWorkingDir": true,
+    "push": false
+  },
+  "npm": { "publish": false },
+  "github": { "release": false },
+  "hooks": {
+    "before:init": ["npm run lint --if-present", "npm test --if-present"]
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  }
+}
