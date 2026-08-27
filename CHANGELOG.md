@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.7.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.7.0-beta.0...v1.7.0-rc.0) (2026-08-27)
+
 ## [1.7.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0...v1.7.0-beta.0) (2026-08-27)
 
 ### Features
