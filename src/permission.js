@@ -1,1 +1,4 @@
-export const can = (role, action) => role === 'admin' || action === 'read';
+export const can = (role, action) => {
+  if (!role) return false;
+  return role === 'admin' || action === 'read';
+};
