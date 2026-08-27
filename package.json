@@ -7,8 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "release:beta": "release-it --preRelease=beta --no-plugins.@release-it/conventional-changelog.infile --ci",
-    "release:rc": "release-it --preRelease=rc --no-plugins.@release-it/conventional-changelog.infile --ci",
+    "release:beta": "release-it --preRelease=beta --ci",
+    "release:rc": "release-it --preRelease=rc --ci",
     "release:live": "release-it --ci"
   },
   "repository": {
