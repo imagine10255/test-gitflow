@@ -8,14 +8,15 @@
       "hotfix/*"
     ],
     "requireCleanWorkingDir": true,
-    "push": false,
-    "requireUpstream": false
+    "push": true,
+    "requireUpstream": true
   },
   "npm": {
     "publish": false
   },
   "github": {
-    "release": false
+    "release": true,
+    "releaseName": "v${version}"
   },
   "hooks": {
     "before:init": [
