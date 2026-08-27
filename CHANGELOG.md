@@ -1,5 +1,7 @@
 # Changelog
 
+# [1.2.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-rc.0...v1.2.0) (2026-08-27)
+
 ## [1.2.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.3...v1.2.0-rc.0) (2026-08-27)
 
 ## [1.2.0-beta.3](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.2...v1.2.0-beta.3) (2026-08-27)
