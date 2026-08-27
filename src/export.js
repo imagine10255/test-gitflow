@@ -1,3 +1,4 @@
-export function exportCsv(rows) {
-  return rows.map(r => r.join(',')).join('\n');
+export function exportCsv(rows, opts = {}) {
+  const sep = opts.sep ?? ',';
+  return rows.map(r => r.join(sep)).join('\n');
 }
