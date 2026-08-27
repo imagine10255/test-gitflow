@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.1](https://github.com/imagine10255/test-gitflow/compare/v1.6.1-rc.0...v1.6.1) (2026-08-27)
+
+## [1.6.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0...v1.6.1-rc.0) (2026-08-27)
+
+### Bug Fixes
+
+* **notify:** crash on empty recipient list ([919a7c0](https://github.com/imagine10255/test-gitflow/commit/919a7c06f8c846475d924f17c1dc0ad807540a9e))
+
 ## [1.6.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0-rc.0...v1.6.0) (2026-08-27)
 
 ## [1.6.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0-beta.1...v1.6.0-rc.0) (2026-08-27)
