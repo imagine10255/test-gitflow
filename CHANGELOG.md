@@ -1,5 +1,18 @@
 # Changelog
 
+# [1.2.0-beta.2](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.1...v1.2.0-beta.2) (2026-08-27)
+
+
+### Features
+
+* mate feature ([c74da83](https://github.com/imagine10255/test-gitflow/commit/c74da830bfd9e6f5bff0a623830caadaacf759e7))
+
+# [1.2.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.1...v1.2.0-beta.2) (2026-08-27)
+
+# [1.2.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.1...v1.2.0-beta.2) (2026-08-27)
+
+## [1.1.2](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.1...v1.2.0-beta.2) (2026-08-27)
+
 # [1.2.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.0...v1.2.0-beta.1) (2026-08-27)
 
 # [1.2.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.0...v1.2.0-beta.1) (2026-08-27)
