@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.3.0-beta.0...v1.3.0-beta.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* **auth:** guard null token on refresh ([65f66c3](https://github.com/imagine10255/test-gitflow/commit/65f66c315b34957e0a4c3bc83693b88cee861ca5))
+* **auth:** reject empty credentials ([4bc8d54](https://github.com/imagine10255/test-gitflow/commit/4bc8d5495baa7c9234a56022bcb95f9f3e1e9d6f))
+
 ## [1.3.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0...v1.3.0-beta.0) (2026-08-27)
 
 
