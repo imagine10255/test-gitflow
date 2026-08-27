@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0...v1.3.0-beta.0) (2026-08-27)
+
+
+### Features
+
+* **auth:** add login with token expiry ([c6b4757](https://github.com/imagine10255/test-gitflow/commit/c6b475729f86078cc67c84dd6f59df757213ae89))
+* **auth:** add role-based permission check ([627f2d3](https://github.com/imagine10255/test-gitflow/commit/627f2d37ffcd9aa8a5ab867ac5916a008214f6c4))
+* **auth:** add session refresh ([c0a3e9e](https://github.com/imagine10255/test-gitflow/commit/c0a3e9ec27d3b5a3ffeb28410c69559191eb3b03))
+
 # [1.2.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-rc.0...v1.2.0) (2026-08-27)
 
 ## [1.2.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.2.0-beta.3...v1.2.0-rc.0) (2026-08-27)
