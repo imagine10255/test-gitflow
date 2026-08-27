@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.1...v1.5.0-beta.0) (2026-08-27)
+
+### Features
+
+* **report:** add report export ([24e1ecd](https://github.com/imagine10255/test-gitflow/commit/24e1ecd1a70d7cdcc8bceef16ba0a90ff18dcf1c))
+
+### Bug Fixes
+
+* **report:** correct date range filter ([a09c3be](https://github.com/imagine10255/test-gitflow/commit/a09c3be2cb403e8b685bb68ae83a9ce5c2fc33b5))
+
 ## [1.4.1](https://github.com/imagine10255/test-gitflow/compare/v1.4.1-rc.0...v1.4.1) (2026-08-27)
 
 ## [1.4.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.1-beta.0...v1.4.1-rc.0) (2026-08-27)
