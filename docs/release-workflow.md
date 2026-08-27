@@ -111,12 +111,23 @@ git push --force
 > - **修正大到需要 QA 重驗** → 在**同一條 `release/1.0`** 上升 patch 切回 beta:
 >
 >   ```bash
->   npm run release:beta -- patch     # 1.0.0-rc.2 → 1.0.1-beta.0
+>   npx release-it --increment=prepatch --preReleaseId=beta --ci   # 1.0.0-rc.2 → 1.0.1-beta.0
 >   ```
 >
 >   patch 升上去了,版號沒有倒退。重走 qa → rc,`1.0.0` 就此作廢不上 live。
 >
 > 這就是分支名用兩碼的原因:`release/1.0` 裡面跑到 `1.0.3` 都還合理。
+
+> ⚠️ **不能用 `npm run release:beta -- patch`。** 實測起點是 `1.0.0-rc.2` 時它算出 `1.0.0-beta.0`——版號倒退而且撞到已存在的 tag,發版直接失敗。
+>
+> 原因是 `--preRelease=<id>` 在**起點已經是 prerelease 時會蓋掉 increment 參數**,只遞增序號。semver 對 prerelease 做 `patch` 也只是「落定」不會進位:
+>
+> ```
+> semver.inc('1.0.0-rc.2', 'patch',    'beta') = 1.0.0        ← 不進位
+> semver.inc('1.0.0-rc.2', 'prepatch', 'beta') = 1.0.1-beta.0
+> ```
+>
+> 詳見第 11 節。
 
 ---
 
@@ -146,7 +157,9 @@ main ─────────────────────────
                                                                 live
 ```
 
-**回補**:release 分支每次 commit 後,當天 merge 回 develop。不要等最後一起 merge,隔太久衝突會很難解。
+**回補**:release 分支存活期間**不回補 develop**,只有正式版上線後才一次補完。理由見第 12 節。
+
+> 實測:中途不回補**不會**造成衝突累積。`develop` 停在舊版號時 merge 進 release 分支,`package.json` 全程零衝突——因為 develop 側從沒動過 `version` 那一行,git 三方合併直接採用 release 側的值。
 
 ---
 
@@ -170,17 +183,32 @@ main ──────────────────●──────
                     v1.0.0                v1.1.0
 ```
 
-⚠️ **`release/1.0` 在 rc 階段修的 bug 要補三個地方**:
+⚠️ **`release/1.0` 在 rc 階段修的 bug 一定要傳到 `release/1.1`**:
 
 ```bash
 git switch release/1.0 && git commit -m "fix: ..." && git push
-npm run release:rc                                    # v1.0.0-rc.1
+npm run release:rc                                        # v1.0.0-rc.1
 
-git switch develop     && git merge --no-ff release/1.0   # ①
-git switch release/1.1 && git merge --no-ff develop       # ② 最容易漏
+git switch release/1.1 && git merge --no-ff release/1.0   # 直接傳,不經過 develop
+# package.json 會衝突 → 選新的(1.1.0-beta.N),見第 13 節
 ```
 
-漏掉 ②,`1.1.0` 上線會把剛修好的 bug 又蓋回去。網站是單一 live,蓋回去直接影響所有使用者,沒有緩衝。
+漏掉的話,`1.1.0` 上線會把剛修好的 bug 又蓋回去。網站是單一 live,蓋回去直接影響所有使用者,沒有緩衝。
+
+> **為什麼直接 `release/1.0 → release/1.1` 而不經過 `develop`?**
+>
+> 因為兩條 release 分支都還沒上線,照第 12 節的原則兩條都不該回補 `develop`。經過 `develop` 中轉會把 `1.0.0-rc.1` 的版號和 CHANGELOG 段落帶進 `develop`,之後想放棄任一版都清不掉。
+>
+> 另一個理由:雙分支並行時 `develop` 同時混著兩版已核准的內容,從 `develop` merge 進 `release/1.0` 會**夾帶 1.1 的功能**。所以並行期間新功能也要從 feature 分支直接併進目標 release 分支,不走 develop 中轉。
+>
+> 單一 release 分支時沒這個問題,走 develop 中轉是可以的。
+
+⚠️ **第二條 release 分支的第一顆 beta 要用完整寫法。** 實測 `npm run release:beta -- minor` 在這個情境會失敗:`develop` 若曾被回補成 prerelease 版號,`minor` 會被吃掉,算出跟 `release/1.0` 撞號的 tag。
+
+```bash
+git switch -c release/1.1 develop
+npx release-it --increment=preminor --preReleaseId=beta --ci   # → 1.1.0-beta.0
+```
 
 ---
 
@@ -199,63 +227,140 @@ release/1.1 ──────────────────────�
 ```
 
 ```bash
-git switch -c hotfix/1.0.1 main          # 從 main 開(main 就是 live 現況)
+git switch -c hotfix/1.0.1 main          # 從 main 開,不要從 v1.0.0 tag 開
 git commit -m "fix: null crash on empty dataset"
-git push                                  # → lab 自己驗
 
-npm run release:rc -- patch               # → v1.0.1-rc.0,客戶驗
+git switch test-lab && git merge --no-ff hotfix/1.0.1 && git push   # → lab 自己驗
 
-git switch main && git merge --no-ff hotfix/1.0.1
-npm run release:live -- 1.0.1             # → v1.0.1 上 live
+git switch hotfix/1.0.1
+npm run release:beta -- patch             # → v1.0.1-beta.0,走 qa 環境(理由見下)
 
-git switch develop     && git merge --no-ff main
-git switch release/1.1 && git merge --no-ff develop
+npm run release:live -- 1.0.1             # → v1.0.1,在 hotfix 分支上發
+
+git switch main    && git merge --no-ff hotfix/1.0.1 -m "hotfix: v1.0.1" && git push
+git switch develop && git merge --no-ff main -m "merge back" && git push
+git switch release/1.1 && git merge --no-ff develop        # 最容易漏
 git push origin --delete hotfix/1.0.1
 ```
 
-**要不要走 rc**,看嚴重度:
+> **一定要從 `main` 開,不要從 tag 開。** 如果 `main` 已經是 `1.0.1`,從 `v1.0.0` 開分支做 `1.0.2` 會把 `1.0.1` 修好的 bug 帶回去。
 
-- 系統當掉、資料錯亂 → 跳過 rc,lab 驗完直接上 live,事後補回歸
-- 功能壞但不致命 → 照走 rc,客戶驗過再上
+**要不要走預發布**,看嚴重度:
+
+- 系統當掉、資料錯亂 → 跳過,lab 驗完直接上 live,事後補回歸
+- 功能壞但不致命 → 走 `beta`,QA 驗過再上
+
+> ⚠️ **hotfix 不要發 `rc`,改發 `beta`。**
+>
+> 這是實測踩到的:客戶正在 release 環境驗收 `1.1.0-rc.0`,此時發 `v1.0.1-rc.0`,CI 規則 `$CI_COMMIT_TAG =~ /-rc\./` 會**把 release 環境換成 `1.0.1-rc.0`**——客戶看到版本號倒退、功能少一半。
+>
+> git 層面完全沒問題(tag 名字不同不會撞、兩者都是 prerelease、兩條線的 `latestTag` 各自獨立),**問題純粹在部署環境**。
+>
+> hotfix 本來就緊急,QA 驗過就夠,不需要客戶驗收。走 `beta` 進 qa 環境就不會碰到客戶正在用的 release 環境。
+>
+> 另一個做法是改 CI 規則讓 hotfix 的預發布走獨立環境,乾淨但要動 pipeline。
+
+> ⚠️ **不要把 live 的 bug 修在進行中的 release 分支上。** 修正會被綁在還沒上線的版本上——客戶驗收卡兩週,live 的 bug 就兩週不能修。除非那個版本明天就上線,否則一律走 hotfix。
 
 ---
 
 ## 8. 指令速查
 
-### `.release-it.json`
+### `.release-it.cjs`
 
-```json
-{
-  "git": {
-    "commitMessage": "chore(release): v${version}",
-    "tagName": "v${version}",
-    "requireBranch": ["main", "release/*", "hotfix/*"],
-    "requireCleanWorkingDir": true,
-    "push": true
+用 `.cjs` 不是 `.json`,因為 `writerOpts` 要放函式。
+
+```js
+const semver = require('semver');
+
+module.exports = {
+  git: {
+    commitMessage: 'chore(release): v${version}',
+    tagName: 'v${version}',
+    requireBranch: ['main', 'release/*', 'hotfix/*'],
+    requireCleanWorkingDir: true,
+    push: true,
+    requireUpstream: true
   },
-  "npm": { "publish": false },
-  "gitlab": { "release": true, "releaseName": "v${version}" },
-  "hooks": { "before:init": ["npm run lint", "npm test"] },
-  "plugins": {
-    "@release-it/conventional-changelog": {
-      "preset": "angular",
-      "infile": "CHANGELOG.md"
+  npm: { publish: false },
+  gitlab: { release: true, releaseName: 'v${version}' },
+  hooks: { 'before:init': ['npm run lint', 'npm test'] },
+  plugins: {
+    '@release-it/conventional-changelog': {
+      // angular preset 會丟棄 refactor,見第 11 節
+      preset: {
+        name: 'conventionalcommits',
+        types: [
+          { type: 'feat',     section: 'Features' },
+          { type: 'fix',      section: 'Bug Fixes' },
+          { type: 'perf',     section: 'Performance Improvements' },
+          { type: 'refactor', section: 'Code Refactoring' },
+          { type: 'revert',   section: 'Reverts' },
+          { type: 'docs',  hidden: true },
+          { type: 'style', hidden: true },
+          { type: 'test',  hidden: true },
+          { type: 'build', hidden: true },
+          { type: 'ci',    hidden: true },
+          { type: 'chore', hidden: true }
+        ]
+      },
+      infile: 'CHANGELOG.md',
+      writerOpts: {
+        // 標題層級改用 prerelease 判斷(預設是看 patch 位),見第 11 節
+        finalizeContext(context) {
+          context.isPatch = !!semver.prerelease(context.version);
+          // 自訂 finalizeContext 會整個覆蓋內建那份,linkCompare 得自己補回來
+          if (typeof context.linkCompare !== 'boolean' && context.previousTag && context.currentTag) {
+            context.linkCompare = true;
+          }
+          return context;
+        }
+      }
     }
   }
-}
+};
 ```
 
 ### `package.json`
 
 ```json
 {
-  "release:beta": "release-it --preRelease=beta --no-plugins.@release-it/conventional-changelog.infile",
-  "release:rc":   "release-it --preRelease=rc   --no-plugins.@release-it/conventional-changelog.infile",
+  "release:beta": "release-it --preRelease=beta",
+  "release:rc":   "release-it --preRelease=rc",
   "release:live": "release-it"
 }
 ```
 
-預發布階段不寫 CHANGELOG,等 live 那次一次生成完整的。
+> ⚠️ **beta / rc 也要寫 CHANGELOG,不能加 `--no-plugins.@release-it/conventional-changelog.infile`。**
+>
+> 那個旗標的用意是「CHANGELOG 只留正式版紀錄」,但實測會讓**正式版那段變成空的**:
+>
+> ```markdown
+> # [1.0.0](.../compare/v1.0.0-rc.0...v1.0.0) (2026-08-27)
+> ```
+>
+> 因為 plugin 用「最近一個 tag」當 commit 起點,而 beta/rc 也會打 tag,所以正式版只撈得到 `rc.0..1.0.0` 之間——那裡根本沒有 commit。整輪的 feat/fix 全部遺失,GitLab Release 說明欄同樣空白。
+>
+> 讓 beta/rc 一起寫檔之後,整輪內容會累積在正式版那段下面,**QA 也能從每顆 beta 的 Release 頁面知道要測什麼**。
+>
+> 代價是每次跨分支 merge `CHANGELOG.md` 都會撞,見第 13 節。
+
+### `.gitattributes`
+
+```
+package-lock.json -merge
+```
+
+讓 lock 檔直接標成衝突要人選,不要產生半自動合併的爛結果。
+
+### git 設定(每人本機都要做一次)
+
+```bash
+git config --add versionsort.suffix "-beta"
+git config --add versionsort.suffix "-rc"
+```
+
+不設的話 `git tag -l --sort=v:refname` 會把 `v1.0.0` 排在 `v1.0.0-beta.0` **前面**,版號檢查會得到錯誤結論。
 
 ### 一個循環
 
@@ -276,7 +381,7 @@ git push                                       # → 自動部 lab,自己先驗
 git switch release/1.0
 git merge --no-ff feature/export-filter
 npm run release:beta -- minor                  # → v1.0.0-beta.0(第一顆要帶 minor)
-git switch develop && git merge --no-ff release/1.0
+# ← 這裡不回補 develop,見第 12 節
 
 # ── 凍結期:修 bug ──
 git switch -c fix/dropdown release/1.0
@@ -286,25 +391,35 @@ git switch test-lab && git merge --no-ff fix/dropdown && git push   # lab 驗
 
 git switch release/1.0 && git merge --no-ff fix/dropdown
 npm run release:beta                           # → v1.0.0-beta.1
-git switch develop && git merge --no-ff release/1.0
 
 # ── 隔週三 AM:發 rc ──
 git switch release/1.0
 npm run release:rc                             # → v1.0.0-rc.0
-git switch -c release/1.1 develop              # 同時開下一輪
-git push -u origin release/1.1
 
 # ── rc 過:上 live ──
-git switch main && git merge --no-ff release/1.0
-npm run release:live -- 1.0.0                  # → v1.0.0,CHANGELOG 生成
-git switch develop     && git merge --no-ff main
-git switch release/1.1 && git merge --no-ff develop
+git log release/1.0..main --oneline            # ① 先確認 main 沒有新 hotfix 沒同步進來
+npm run release:live -- 1.0.0                  # ② 在 release 分支上發,不在 main 上發
+
+git switch main    && git merge --no-ff release/1.0 -m "release: v1.0.0" && git push
+git switch develop && git merge --no-ff main -m "merge: v1.0.0 back to develop" && git push
+# ↑ develop 從 main 合併,不從 release/1.0 合併,見第 12 節
 
 # ── 觀察一天沒事:砍分支 ──
 git push origin --delete release/1.0
+git log develop..main --oneline                # 應為空
 ```
 
-> 每條 release 分支的第一顆 beta 要帶 `minor`,因為 release-it 看到最新 tag 是上一版的 `rc.N`,自己算會接錯。之後就能自動遞增。
+> **第一顆 beta 一定要帶 increment,而且只在起點是穩定版時 `minor` 才有效。**
+>
+> `release/1.0` 從 `develop`(穩定版 `0.9.0`)切出來時,`npm run release:beta -- minor` 正確算出 `1.0.0-beta.0`。
+>
+> 但如果起點已經是 prerelease(例如兩條 release 分支重疊時,`develop` 被回補成 `1.0.0-rc.0`),`minor` 會**被吃掉**,實測算出 `1.0.0-rc.1` 撞號。那種情況要用:
+>
+> ```bash
+> npx release-it --increment=preminor --preReleaseId=beta --ci
+> ```
+>
+> 見第 11 節。
 
 ### 砍分支前的檢查
 
@@ -393,9 +508,13 @@ deploy:live:
 
 **① 忘記回補**
 
-release 分支修完的東西沒補進 develop / 下一條 release 分支,下一版把 bug 帶回去。
+注意這裡指的**不是** release 分支的日常回補——那個是刻意不做的(第 12 節)。真正會出事的是這三種:
 
-建議加 CI 檢查:`main` 或 `release/1.0` 有新 commit 而目標分支沒有時,pipeline 發警告。比人記得可靠。
+- **hotfix 上線後沒補進進行中的 release 分支** → 下一版把剛修好的 bug 帶回去
+- **正式版上線後沒補進 develop** → 下一輪版號算錯、CHANGELOG 重列已發佈的 commit
+- **雙分支並行時 `release/1.0` 的 rc 修正沒傳到 `release/1.1`**
+
+建議加 CI 檢查:`main` 有新 commit 而 `release/*` 沒有時,pipeline 發警告。比人記得可靠。
 
 **② 兩條分支平行期間的溝通**
 
@@ -429,3 +548,270 @@ conventional-changelog 靠 type 分區塊。全寫 `fix:` 的話,CHANGELOG 只�
 **⑦ build 產物不保證一致**
 
 qa 和 release 是兩次獨立 build,程式碼一樣但產物不保證 byte-identical。至少要:`package-lock.json` commit、build 用 `npm ci`。真的在意的話,每次 deploy 記錄產物 hash,出事時可以比對。
+
+---
+
+## 11. release-it 的實際行為
+
+> 以下每一條都經過實測(release-it 20.2.1),不是推測。
+
+### increment 只在起點是穩定版時生效
+
+**最容易踩的坑。** `package.json` 已經是 prerelease 版號時,`--preRelease=<id>` 會**蓋掉** increment 參數,只遞增序號。
+
+| 起點 | 指令 | 結果 |
+|---|---|---|
+| `1.6.0`(穩定) | `release:beta -- minor` | `1.7.0-beta.0` ✓ |
+| `1.6.0-beta.0` | `release:beta -- minor` | `1.6.0-beta.1` ✗ 不是 1.7.0 |
+| `1.4.0-rc.0` | `release:beta -- patch` | `1.4.0-beta.0` ✗ 倒退且撞既有 tag |
+
+跨版本必須用完整寫法:
+
+```bash
+npx release-it --increment=preminor --preReleaseId=beta --ci   # 新一輪:1.6.0 → 1.7.0-beta.0
+npx release-it --increment=prepatch --preReleaseId=beta --ci   # rc 退回 beta:1.4.0-rc.0 → 1.4.1-beta.0
+```
+
+**所以只有「從穩定版起跳的第一顆」可以用 `-- minor`。** 其他情況要嘛不帶參數(遞增序號),要嘛用完整寫法。
+
+### 版號來源是 `package.json`,不是 tag
+
+release-it 初始化時會自己 `git fetch`,**不需要手動 fetch**。但抓回來的 tag **不影響版號推算**——它算的是 `package.json` 的 version。
+
+實測:同事已推 `v1.2.0-beta.2`,本地 `package.json` 停在 `1.2.0-beta.1` 沒 pull,發版仍算出 `1.2.0-beta.2` 撞號。
+
+**所以發版前要 `git pull`:**
+
+```bash
+git switch release/1.0
+git pull                                   # ← 先拿同事的 release commit
+npm run release:beta
+```
+
+### 撞號是安全的失敗
+
+撞到既有 tag 時在 `Git tag` 階段就失敗,`Git push` 根本不會執行:
+
+```
+✔ npm version
+✔ Git commit
+✖ Git tag
+ERROR fatal: tag 'v1.2.0-beta.2' already exists
+```
+
+而且會**自動回滾**:`package.json` 復原、release commit 被撤掉、工作區乾淨、遠端零影響。`git pull` 後重跑就好。
+
+**但這個保護只在 tag 名字剛好撞到時生效。** 兩條 release 分支並行時算出的 tag 名字不同,release-it 一路綠燈,版號順序卻可能已亂——那種只能靠 `git tag -l --sort=v:refname` 事後檢查。
+
+### `--dry-run` 與 `--ci`
+
+`--dry-run` 的輸出前綴有意義:
+
+```
+$ git describe --tags --abbrev=0     ← $ = 真的執行了(唯讀查詢)
+! git fetch                           ← ! = 跳過沒執行(會改變狀態)
+! git tag --annotate ...
+```
+
+注意 `git fetch` 在 dry-run 下被跳過,**所以 dry-run 看不出「同事已經發過」的情況**。
+
+`--ci` 跳過所有互動提問直接執行。**本機手動發版不要加**,那些確認畫面是你在版號算錯時唯一的攔截點;CI pipeline 才加。
+
+### angular preset 會丟棄 refactor
+
+`conventional-changelog-angular/src/writer.js` 裡:
+
+```js
+} else if (commit.type === 'revert' || commit.revert) {
+  type = 'Reverts'
+} else if (discard) {
+  return undefined          // ← 這裡就 return 了
+} else if (commit.type === 'refactor') {   // ← 永遠走不到
+  type = 'Code Refactoring'
+```
+
+`discard` 只有在 commit 帶 BREAKING CHANGE 時才是 `false`。實測 10 個 commit(5 feat、3 fix、2 refactor)只顯示 8 條。
+
+**對 QA 來說重構範圍才是最需要重測的部分,藏起來反而危險。** 所以第 8 節的設定改用 `conventionalcommits` preset 並明確列出要顯示的類型。
+
+`chore` 要保持 hidden,否則每顆 release commit 自己(`chore(release): vX`)都會出現在 CHANGELOG 裡。
+
+### CHANGELOG 標題層級
+
+預設規則是「patch 位 != 0 就用 `##`」,跟穩定/預發完全無關:
+
+| 版號 | patch 位 | 預設標題 |
+|---|---|---|
+| `1.2.0-beta.1` | 0 | `#` |
+| `1.1.2-rc.1` | 2 | `##` |
+| `1.1.3` | 3 | `##` ← 正式版反而比 beta 小 |
+
+第 8 節的 `finalizeContext` 改用 `semver.prerelease()` 判斷:正式版 `#`、prerelease `##`。
+
+**那三行 `linkCompare` 不能省。** conventional-changelog 內建一個 `finalizeContext` 在設 `linkCompare`,自訂的會把它整個覆蓋掉,少了那三行 compare 連結會全部消失。
+
+---
+
+## 12. 上線才承認
+
+**release 分支存活期間不回補 `develop`,只有正式版上線後才一次補完。**
+
+### 為什麼
+
+回補之後 `develop` 上會留下三樣清不掉的東西:
+
+```
+version: 1.6.0-beta.0                      ← package.json 被改了
+CHANGELOG.md 頂端多了 [1.6.0-beta.0] 段落   ← 一個可能永遠不會上線的版本
+chore(release): v1.6.0-beta.0              ← release commit 進了 develop 歷史
+```
+
+`develop` 是共享分支不能 `reset --hard`,只能 revert,而 revert 會再留一顆 commit,CHANGELOG 裡那段「從未上線的版本」也還在歷史裡——**比留著更醜**。
+
+不回補的話,中途要整版放棄只需砍分支 + 砍 tag,`develop` 乾乾淨淨。
+
+### develop 的版號語意
+
+`develop` 的 `package.json` version = **最後一個上線的正式版**。永遠是穩定版號,不會出現 `-beta` / `-rc` 中間態。
+
+### 中途不回補不會造成衝突
+
+實測 `develop` 停在 `1.5.1`、`release/1.6` 在 `1.6.0-beta.0`,中途 merge `develop → release/1.6` 五次,`package.json` **全程零衝突**。
+
+因為衝突需要兩邊都改過同一行,而 `develop` 側從沒動過 `version`(改版號只發生在 release 分支上)。
+
+### 但上線後那次回補不能省
+
+實測:若連上線後也不回補,下一輪從 `develop` 切 release 分支時,版號和 CHANGELOG 起點都會退回舊狀態——因為 `git describe` 只認 **HEAD 可達**的 tag,而上一版的 release commit 只存在 release/main 那條線。
+
+結果會算出已經發過的版號、CHANGELOG 重列已發佈的 commit,發版時在 `Git tag` 階段撞號失敗。
+
+驗證回補正確:
+
+```bash
+git describe --tags --match='v*' --abbrev=0 develop   # 應為最新正式版
+git merge-base --is-ancestor v1.6.0 develop && echo OK
+```
+
+### 三條配套原則
+
+**① 發版只在 `release/*` 或 `hotfix/*` 分支上做**,`main` 和 `develop` 只負責接收。
+
+**② 開分支只從 `main` 開**(hotfix 不從舊 tag 開)。
+
+**③ 回補只從 `main` 往下**——`develop` 從 `main` 合併,不從 release 分支合併:
+
+```bash
+git switch develop && git merge --no-ff main          # ✓
+git switch develop && git merge --no-ff release/1.6   # ✗
+```
+
+實測從 `release/1.6` 合併時,`git diff main develop` 顯示內容完全一致,但 `git log develop..main` 仍有兩顆 merge commit 的輸出——健康檢查會永遠有雜訊,你就分不清「無害的圖形差異」和「真的漏回補」。
+
+另外若 `release → main` 需要手動解衝突,那個解法只存在 `main` 上,從 release 分支合進 develop 會拿不到。
+
+### 「先發版再合併」是安全的,前提是有做同步
+
+實測對照(`main` 上有 hotfix 造成分歧時):
+
+| | 有先同步 main 的內容進 release 分支 | 沒同步 |
+|---|---|---|
+| `v1.6.0` tag 內容 | 含 hotfix 修正 | **不含** |
+| `git diff v1.6.0 main` | 完全一致 | 有差異 |
+| 部署這顆 tag 到 live | 正確 | **把修好的 bug 帶回去** |
+
+沒同步時那次 merge 只在 `package.json` 報衝突,程式碼是靜默自動合併的,**不會有任何警告**。
+
+所以發正式版前一定要跑:
+
+```bash
+git log release/1.0..main --oneline    # 有輸出就先同步再發
+```
+
+---
+
+## 13. 衝突處理
+
+### `package.json` 版號:選新的
+
+**不是「保留當前分支」。** 那個說法只在往 release 分支合併時成立,方向反過來就錯:
+
+| 情境 | 當前分支 | 對方 | 選新的 | 保留當前 |
+|---|---|---|---|---|
+| `develop → release/1.6` | `1.6.0-beta.0` | `1.5.1` | `1.6.0-beta.0` ✓ | `1.6.0-beta.0` ✓ |
+| `release/1.6 → main` | `1.5.1` | `1.6.0` | `1.6.0` ✓ | `1.5.1` **✗** |
+
+版號本來就該單調遞增,所以「選新的」不管站在哪條分支都對。
+
+`--ours` / `--theirs` 的意義會隨分支反轉容易記錯,直接看衝突內容判斷:
+
+```
+<<<<<<< HEAD
+  "version": "1.6.0-beta.0",     ← 選這個(新)
+=======
+  "version": "1.5.1",
+>>>>>>> develop
+```
+
+### `package-lock.json`
+
+跟著 `package.json` 選同一邊。`.gitattributes` 設 `package-lock.json -merge` 讓它直接標成衝突。
+
+### `CHANGELOG.md`
+
+beta/rc 也寫檔之後,每次跨分支 merge 都會撞。`merge=union` 可以消除衝突且不會弄壞內容(不像 `package.json` 會變成無效 JSON),**但有代價**:
+
+```
+# [1.2.0-rc.0](...compare/v1.2.0-beta.3...v1.2.0-rc.0)
+## [1.1.3](...compare/v1.2.0-beta.3...v1.2.0-rc.0)      ← compare 連結錯了
+## [1.1.3-rc.0](...compare/v1.2.0-beta.3...v1.2.0-rc.0) ← 順序也亂了
+```
+
+union 是逐行合併不管語意。內容不會遺失,但這份 CHANGELOG 不適合直接對外發佈。
+
+**兩個選擇**:接受手動解(每次只有幾行),或用 union 並讓對外版本以 GitLab Releases 為準(Releases 各自獨立產生,沒有這個問題)。
+
+---
+
+## 14. 放棄一個版本
+
+「上線才承認」的好處:中途要整版放棄很乾淨。
+
+```bash
+git push origin --delete release/1.6 && git branch -D release/1.6
+# tag 必須一起砍,不是選配
+git tag -d v1.6.0-beta.0 && git push origin :refs/tags/v1.6.0-beta.0
+git tag -d v1.6.0-beta.1 && git push origin :refs/tags/v1.6.0-beta.1
+```
+
+**tag 一定要砍。** 實測只砍分支不砍 tag,遺留的 tag 指向孤兒 commit(不在任何分支上),下次重開 `release/1.6` 從舊版號起跳會算出同一個版號撞上去。
+
+**例外**:QA 或客戶已經拿那顆 tag 去測過就不該砍——砍了他們的回報會對不上。這種情況改成放棄 `1.6.0` 直接跳 `1.7.0`,讓廢棄版號留在歷史上當記錄。
+
+> ⚠️ **`git push --tags` 在發版流程裡不要單獨用。** 實測踩過:release-it 發版失敗自動回滾了本地 commit,但手動推出去的 tag 收不回來,遠端變成孤兒 tag 指向不存在的 commit。release-it 自己的 `git push --follow-tags` 已經處理好了。
+
+---
+
+## 15. 檢查清單
+
+```bash
+# 1. tag 順序 = 發版順序(需先設 versionsort.suffix)
+git tag -l --sort=v:refname
+
+# 2. 分支只剩三條長期的 + 進行中的
+git branch -a
+
+# 3. develop 包含 main 的所有東西
+git log develop..main --oneline        # 應為空
+
+# 4. develop 的版號基準正確(下一輪能算對的前提)
+git describe --tags --match='v*' --abbrev=0 develop
+
+# 5. 發正式版前:main 有沒有新東西還沒同步進來
+git log release/1.0..main --oneline    # 有輸出就先同步
+
+# 6. hotfix 有沒有補進進行中的 release 分支
+git branch --contains $(git rev-parse main) | grep release/
+```
+
+**第 3 條在 release 進行中會有輸出,那是預期的**(上線才承認)。只在上線回補後跑才有意義。
