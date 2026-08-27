@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.4.1-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.0-rc.0...v1.4.1-beta.0) (2026-08-27)
+
+### Features
+
+* **user:** add batched import with progress ([0d1720c](https://github.com/imagine10255/test-gitflow/commit/0d1720c037bc2ab596d1ea465c25845178a21edf))
+* **user:** generate import error report ([353a3dd](https://github.com/imagine10255/test-gitflow/commit/353a3dd88e641d5029ec031789a8857b1cb8e351))
+* **user:** retry failed import rows ([dad2354](https://github.com/imagine10255/test-gitflow/commit/dad2354f78edfa2bd5fcc7ce00c9fbcca45b8309))
+* **user:** rollback partial import on failure ([761f9a1](https://github.com/imagine10255/test-gitflow/commit/761f9a1c94a65991be441d0ce910516553da72e1))
+
+### Bug Fixes
+
+* **audit:** log import operations ([b19aea3](https://github.com/imagine10255/test-gitflow/commit/b19aea3ccfb1a78b84558cd991d6139333e724cb))
+* **user:** enforce 50k row import limit ([0bfea81](https://github.com/imagine10255/test-gitflow/commit/0bfea814c44f5970bbcba14fe3a4e2e7e171d02e))
+* **user:** handle BIG5 encoded import files ([ae60d56](https://github.com/imagine10255/test-gitflow/commit/ae60d56e06028f5a67b0b74e3ec8ab54a0478635))
+* **user:** release buffers after large import ([df03343](https://github.com/imagine10255/test-gitflow/commit/df03343977c2d1fe447d72614d25fd217d39b49b))
+
+### Code Refactoring
+
+* **user:** move validation into pipeline stages ([69bb4ef](https://github.com/imagine10255/test-gitflow/commit/69bb4ef1b0571e3c616f0e10840796efd4518af1))
+* **user:** rewrite bulk import as streaming parser ([be4ac05](https://github.com/imagine10255/test-gitflow/commit/be4ac05ca47f4f7c361b7371f03d510a524cb982))
+
+## [1.4.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.0-beta.1...v1.4.0-rc.0) (2026-08-27)
+
 ## [1.4.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.4.0-beta.0...v1.4.0-beta.1) (2026-08-27)
 
 
