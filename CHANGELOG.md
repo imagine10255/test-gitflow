@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.5.0](https://github.com/imagine10255/test-gitflow/compare/v1.5.0-rc.0...v1.5.0) (2026-08-27)
+
+## [1.5.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.5.0-beta.1...v1.5.0-rc.0) (2026-08-27)
+
+## [1.5.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v1.5.0-beta.0...v1.5.0-beta.1) (2026-08-27)
+
+### Bug Fixes
+
+* **dash:** show placeholder when no data ([3d75d76](https://github.com/imagine10255/test-gitflow/commit/3d75d76b419ca6b45ac3e327a1720c101c6b7d63))
+* **report:** paginate large report exports ([c0a0707](https://github.com/imagine10255/test-gitflow/commit/c0a0707013a232adea310855833bbf36f5348984))
+* **report:** respect user timezone in date filter ([7692a60](https://github.com/imagine10255/test-gitflow/commit/7692a604990c8407bc345db01112c61a21c9bff7))
+
+### Performance Improvements
+
+* **dash:** memoize widget rendering ([fa4248f](https://github.com/imagine10255/test-gitflow/commit/fa4248f7a58abde92fa77ead40a17cfa3b470b6a))
+
+### Code Refactoring
+
+* **dash:** extract layout grid component ([3ce22cd](https://github.com/imagine10255/test-gitflow/commit/3ce22cde605d9664d67505a517a5f672dd5ed4f8))
+
+## [1.5.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.1...v1.5.0-beta.0) (2026-08-27)
+
+### Features
+
+* **report:** add report export ([24e1ecd](https://github.com/imagine10255/test-gitflow/commit/24e1ecd1a70d7cdcc8bceef16ba0a90ff18dcf1c))
+
+### Bug Fixes
+
+* **report:** correct date range filter ([a09c3be](https://github.com/imagine10255/test-gitflow/commit/a09c3be2cb403e8b685bb68ae83a9ce5c2fc33b5))
+
 ## [1.4.1](https://github.com/imagine10255/test-gitflow/compare/v1.4.1-rc.0...v1.4.1) (2026-08-27)
 
 ## [1.4.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.4.1-beta.0...v1.4.1-rc.0) (2026-08-27)
