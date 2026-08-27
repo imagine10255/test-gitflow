@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.2-rc.1](https://github.com/imagine10255/test-gitflow/compare/v1.1.2-rc.0...v1.1.2-rc.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* null guard on empty rows ([3f53219](https://github.com/imagine10255/test-gitflow/commit/3f53219a2ac800706c0c2dd5a0bc3b830e3e5d7c))
+
+## [1.1.2-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.1.2-beta.0...v1.1.2-rc.0) (2026-08-27)
+
 ## [1.1.2-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.1.1-rc.1...v1.1.2-beta.0) (2026-08-27)
 
 
