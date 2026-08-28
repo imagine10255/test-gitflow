@@ -17,7 +17,7 @@
 
 | 環境 | 誰在用 | 觸發方式 | 版號範例 |
 |---|---|---|---|
-| **lab** | 自己隨便測 | merge 進 `test-lab` | `1.0.0-lab.87`(pipeline 序號,不進 git) |
+| **lab** | 自己隨便測 | merge 進 `test-lab` | —(不打 tag,沒有版號) |
 | **qa** | QA 品管 | tag `v1.0.0-beta.N` | `1.0.0-beta.3` |
 | **release** | 客戶驗收 | tag `v1.0.0-rc.N` | `1.0.0-rc.0` |
 | **live** | 客戶正式用 | tag `v1.0.0`(手動確認) | `1.0.0` |
@@ -28,16 +28,20 @@
 
 ## 2. 分支
 
-| 分支 | 從哪開 | 生命週期 |
-|---|---|---|
-| `main` | — | 永久,等於 live 現況 |
-| `develop` | — | 永久,下一版整合區 |
-| `test-lab` | — | 永久,但可隨時重置 |
-| `feature/*` | `develop` | merge 後砍 |
-| `release/1.0` | `develop` | 上線觀察期過後砍 |
-| `hotfix/1.0.1` | `main` | 上線後砍 |
+| 分支 | 從哪開 | 合併回哪 | 生命週期 |
+|---|---|---|---|
+| `main` | — | — (終點) | 永久,等於 live 現況 |
+| `develop` | — | — (只被 merge,不 merge 出去) | 永久,下一版整合區 |
+| `test-lab` | — | **不合併出去**(單向沙盒) | 永久,但可隨時重置 |
+| `feature/*` | `develop` | `develop`(或並行時直接進目標 release 分支) | merge 後砍 |
+| `release/1.0` | `develop` | `main` → 再由 `main` → `develop` | 上線觀察期過後砍 |
+| `hotfix/1.0.1` | `main` | `main` → 再由 `main` → `develop` → 進行中的 `release/*` | 上線後砍 |
 
-分支名用**兩碼**(`release/1.0` 不是 `release/1.0.0`),因為分支內可能發到 `1.0.1`。
+> **注意 `release/*` 和 `hotfix/*` 都是先進 `main`,再由 `main` 往下流到 `develop`**,不要從 release 分支直接 merge 進 develop。理由見第 12 節。
+>
+> 所有分支進 release 分支之前,都要先 merge 進 `test-lab` 自己驗一輪。
+
+分支名用**兩碼**(`release/1.0` 不是 `release/1.0.0`),因為同一條分支內版號的第三碼會變動:發完 `1.0.0-beta.0`、進到 `1.0.0-rc.0` 之後,若客戶回報的問題大到要 QA 重驗,就得升 patch 切回 beta 變成 `1.0.1-beta.0`(rc 不能倒退回 beta,見第 4 節)。用三碼命名的話分支名馬上就對不上了。
 
 ### `test-lab` 是單向的沙盒
 
