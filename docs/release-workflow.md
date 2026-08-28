@@ -416,9 +416,14 @@ git switch test-lab
 git merge --no-ff feature/export-filter
 git push                                       # → 自動部 lab,自己先驗
 
-# 驗過了才進 release 分支
-git switch release/1.0
+# 驗過了才進 develop(實務上走 MR)
+git switch develop
 git merge --no-ff feature/export-filter
+git push
+
+# 再從 develop 同步進 release 分支
+git switch release/1.0
+git merge --no-ff develop
 npm run release:beta -- minor                  # → v1.0.0-beta.0(第一顆要帶 minor)
 # ← 這裡不回補 develop,見第 12 節
 
