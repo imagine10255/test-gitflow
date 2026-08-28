@@ -131,6 +131,19 @@ git push --force
 >
 > 這就是分支名用兩碼的原因:`release/1.0` 裡面跑到 `1.0.3` 都還合理。
 
+> ⚠️ **雙分支並行時,前一條分支不能退回 beta——即使版號合法。**
+>
+> 正常並行時兩條線各自佔一個環境,互不干擾:
+>
+> ```
+> release/1.0 發 v1.0.0-rc.1    → release 環境(客戶)
+> release/1.1 發 v1.1.0-beta.2  → qa 環境(QA)
+> ```
+>
+> 但 `release/1.0` 一旦退回 beta 發 `v1.0.1-beta.0`,它也會命中 qa 的規則 `/-beta\.\d+$/`,**跟 `release/1.1` 搶同一個環境**。而且 qa 環境的版號會從 `1.1.0-beta.2` 倒退到 `1.0.1-beta.0`(semver 上確實較小),QA 會看到版本變小、功能變少。
+>
+> 所以並行期間 `release/1.0` 只能一路 `rc.N+1` 走到上線。**要退回 beta 重驗,只有在單一 release 分支時才做得到。**
+
 > ⚠️ **不能用 `npm run release:beta -- patch`。** 實測起點是 `1.0.0-rc.2` 時它算出 `1.0.0-beta.0`——版號倒退而且撞到已存在的 tag,發版直接失敗。
 >
 > 原因是 `--preRelease=<id>` 在**起點已經是 prerelease 時會蓋掉 increment 參數**,只遞增序號。semver 對 prerelease 做 `patch` 也只是「落定」不會進位:
@@ -203,25 +216,40 @@ main ─────────────────────────
 
 **兩條 release 分支存活期間都不回補 `develop`**,所以 `develop` 一直停在上一個正式版,直到 `1.0.0` 上線才第一次前進。這也是為什麼 `release/1.1` 的第一顆 beta 要寫死版號(見下)。
 
-⚠️ **`release/1.0` 在 rc 階段修的 bug 一定要傳到 `release/1.1`**:
+### rc 階段的修正怎麼走
+
+進 rc 之後,`release/1.0` 的修正**只在自己這條線上循環**,不碰任何其他分支:
 
 ```bash
-git switch release/1.0 && git commit -m "fix: ..." && git push
-npm run release:rc                                        # v1.0.0-rc.1
+git switch -c fix/xxx release/1.0        # 從 release/1.0 開(或直接在上面 commit)
+git commit -m "fix: ..."
 
-git switch release/1.1 && git merge --no-ff release/1.0   # 直接傳,不經過 develop
-# package.json 會衝突 → 選新的(1.1.0-beta.N),見第 13 節
+git switch test-lab && git merge --no-ff fix/xxx && git push    # lab 驗
+
+git switch release/1.0 && git merge --no-ff fix/xxx
+npm run release:rc                                              # → v1.0.0-rc.1
 ```
 
-漏掉的話,`1.1.0` 上線會把剛修好的 bug 又蓋回去。網站是單一 live,蓋回去直接影響所有使用者,沒有緩衝。
+**這時不碰 `main`、不碰 `develop`、也不碰 `release/1.1`。** 因為 `1.0.0` 還沒上線,照第 12 節都還沒到承認的時候。
 
-> **為什麼直接 `release/1.0 → release/1.1` 而不經過 `develop`?**
+等 `1.0.0` 真的上線,才一次流下去:
+
+```bash
+git switch main    && git merge --no-ff release/1.0 -m "release: v1.0.0"
+git switch develop && git merge --no-ff main -m "merge back"
+git switch release/1.1 && git merge --no-ff develop        # ← 超前的那條也要補
+npm run release:beta                                        # → v1.1.0-beta.N+1
+```
+
+⚠️ **最後那步最容易漏。** 漏掉的話 `1.1.0` 上線會把剛修好的 bug 又蓋回去。網站是單一 live,蓋回去直接影響所有使用者,沒有緩衝。
+
+> **代價:在 `1.0.0` 上線前,`release/1.1` 的 beta 帶著那個已知 bug。**
 >
-> 因為兩條 release 分支都還沒上線,照第 12 節的原則兩條都不該回補 `develop`。經過 `develop` 中轉會把 `1.0.0-rc.1` 的版號和 CHANGELOG 段落帶進 `develop`,之後想放棄任一版都清不掉。
+> QA 可能會在 `1.1.0-beta.N` 上重複回報同一個問題。這是溝通成本,不是技術問題——跟 QA 說明「這個已在 `1.0.0-rc.1` 修掉,`1.0.0` 上線後會流進來」就好。
 >
-> 另一個理由:並行期間 `develop` 會開始收 `1.1` 的功能,這時若從 `develop` merge 進 `release/1.0` 就會**夾帶 1.1 的內容**。
->
-> 但照本節開頭的原則(**進 rc 之後舊分支保持乾淨到上線**),`release/1.0` 這時已經不再從 `develop` 拉任何東西了,只修自己的 bug。所以夾帶不會發生——前提是這條原則有守住。
+> 換成「立刻把 `release/1.0` merge 進 `release/1.1`」可以避免這個重複回報,但代價是把 `1.0.0-rc.1` 的版號和 CHANGELOG 段落帶進 `release/1.1`——那正好違反「上線才承認」,而且之後想放棄 `1.0.0` 就清不掉了。**選擇忍受重複回報。**
+
+> **`develop` 在並行期間會開始收 `1.1` 的功能**,這時若從 `develop` merge 進 `release/1.0` 就會夾帶 `1.1` 的內容。但照本節開頭的原則(**進 rc 之後舊分支保持乾淨到上線**),`release/1.0` 這時已經不再從 `develop` 拉任何東西,所以夾帶不會發生——前提是這條原則有守住。
 >
 > 單一 release 分支時沒這個問題,走 develop 中轉是可以的。
 
@@ -245,6 +273,17 @@ npx release-it 1.1.0-beta.0 --ci        # 明確寫死,不要讓它自己算
 ```
 
 **單一 release 分支時沒這個問題**——`develop` 就是上一個正式版,`npm run release:beta -- minor` 正確算出下一個 minor。只有並行時第二條分支才要寫死版號。
+
+---
+
+### 別把兩種修正搞混
+
+| | 修什麼 | 從哪開 | 發什麼 | 何時回補 |
+|---|---|---|---|---|
+| `hotfix/1.0.1` | **live 上的 bug** | `main` | `1.0.1-beta.N` → `1.0.1` | 上線後立刻(見第 7 節) |
+| rc 階段的修正 | **還沒上線的 `1.0.0` 的 bug** | `release/1.0` | `1.0.0-rc.N+1` | 等 `1.0.0` 上線才回補 |
+
+兩者都是「修 bug」,但分支起點、版號、回補時機完全不同。**開錯分支的後果是把未上線的內容帶上 live**,或是修正流不到該去的地方。
 
 ---
 
