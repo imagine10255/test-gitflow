@@ -33,7 +33,7 @@
 | `main` | — | — (終點) | 永久,等於 live 現況 |
 | `develop` | — | — (只被 merge,不 merge 出去) | 永久,下一版整合區 |
 | `test-lab` | — | **不合併出去**(單向沙盒) | 永久,但可隨時重置 |
-| `feature/*` | `develop` | `develop`(或並行時直接進目標 release 分支) | merge 後砍 |
+| `feature/*` | `develop` | `develop` | merge 後砍 |
 | `release/1.0` | `develop` | `main` → 再由 `main` → `develop` | 上線觀察期過後砍 |
 | `hotfix/1.0.1` | `main` | `main` → 再由 `main` → `develop` → 進行中的 `release/*` | 上線後砍 |
 
@@ -219,7 +219,9 @@ git switch release/1.1 && git merge --no-ff release/1.0   # 直接傳,不經過 
 >
 > 因為兩條 release 分支都還沒上線,照第 12 節的原則兩條都不該回補 `develop`。經過 `develop` 中轉會把 `1.0.0-rc.1` 的版號和 CHANGELOG 段落帶進 `develop`,之後想放棄任一版都清不掉。
 >
-> 另一個理由:雙分支並行時 `develop` 同時混著兩版已核准的內容,從 `develop` merge 進 `release/1.0` 會**夾帶 1.1 的功能**。所以並行期間新功能也要從 feature 分支直接併進目標 release 分支,不走 develop 中轉。
+> 另一個理由:並行期間 `develop` 會開始收 `1.1` 的功能,這時若從 `develop` merge 進 `release/1.0` 就會**夾帶 1.1 的內容**。
+>
+> 但照本節開頭的原則(**進 rc 之後舊分支保持乾淨到上線**),`release/1.0` 這時已經不再從 `develop` 拉任何東西了,只修自己的 bug。所以夾帶不會發生——前提是這條原則有守住。
 >
 > 單一 release 分支時沒這個問題,走 develop 中轉是可以的。
 
