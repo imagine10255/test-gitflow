@@ -34,12 +34,26 @@
 | `develop` | — | — (只被 merge,不 merge 出去) | 永久,下一版整合區 |
 | `test-lab` | — | **不合併出去**(單向沙盒) | 永久,但可隨時重置 |
 | `feature/*` | `develop` | `develop` | merge 後砍 |
+| `fix/*` | 當前的 `release/*` | 同一條 `release/*` | merge 後砍 |
 | `release/1.0` | `develop` | `main` → 再由 `main` → `develop` | 上線觀察期過後砍 |
 | `hotfix/1.0.1` | `main` | `main` → 再由 `main` → `develop` → 進行中的 `release/*` | 上線後砍 |
 
 > **注意 `release/*` 和 `hotfix/*` 都是先進 `main`,再由 `main` 往下流到 `develop`**,不要從 release 分支直接 merge 進 develop。理由見第 12 節。
 >
 > 所有分支進 release 分支之前,都要先 merge 進 `test-lab` 自己驗一輪。
+
+### `feature/*` 和 `fix/*` 的差別
+
+| | 起點 | 終點 | 什麼時候用 |
+|---|---|---|---|
+| `feature/*` | `develop` | `develop`(走 MR) | 新功能,要進下一版 |
+| `fix/*` | **當前的 `release/*`** | **同一條 `release/*`** | 修這一版還沒上線的 bug |
+
+`fix/*` 不經過 `develop`——它修的是「正在發的這一版」,而那一版的內容只在 release 分支上。修正會在 `1.0.0` 上線時隨 `main` 一起流回 `develop`。
+
+**beta 階段和 rc 階段的 `fix/*` 用法完全一樣**,差別只在發出來的是 `beta.N+1` 還是 `rc.N+1`,而那由 release 分支當下的階段決定,不需要另外取名(不需要 `rcfix/*` 之類)。
+
+> 如果同時有兩條 release 分支在跑,`fix/*` 後面可以加版號區分,例如 `fix/1.0-dropdown`。單一分支時不必。
 
 分支名用**兩碼**(`release/1.0` 不是 `release/1.0.0`),因為同一條分支內版號的第三碼會變動:發完 `1.0.0-beta.0`、進到 `1.0.0-rc.0` 之後,若客戶回報的問題大到要 QA 重驗,就得升 patch 切回 beta 變成 `1.0.1-beta.0`(rc 不能倒退回 beta,見第 4 節)。用三碼命名的話分支名馬上就對不上了。
 
