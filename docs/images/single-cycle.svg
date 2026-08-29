@@ -1,147 +1,161 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 440" width="980" height="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" width="1000" height="500" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif">
   <style>
-    .bg      { fill: #ffffff; }
-    .title   { fill: #0f172a; font-size: 15px; font-weight: 700; }
-    .brName  { font-size: 12.5px; font-weight: 700; }
-    .devLine { stroke: #3b82f6; stroke-width: 2.5; fill: none; }
-    .relLine { stroke: #f59e0b; stroke-width: 2.5; fill: none; }
-    .mainLine{ stroke: #22c55e; stroke-width: 2.5; fill: none; }
-    .devDot  { fill: #3b82f6; }
-    .relDot  { fill: #f59e0b; }
-    .mainDot { fill: #22c55e; }
-    .devTxt  { fill: #1e40af; }
-    .relTxt  { fill: #92400e; }
-    .mainTxt { fill: #166534; }
-    .flow    { stroke: #64748b; stroke-width: 2; fill: none; }
-    .flowHead{ fill: #64748b; }
-    .tag     { font-size: 11px; font-weight: 600; }
-    .note    { fill: #475569; font-size: 11.5px; }
-    .tick    { fill: #475569; font-size: 12px; font-weight: 600; }
-    .dash    { stroke: #cbd5e1; stroke-width: 1; stroke-dasharray: 4 4; }
-    .envQa   { fill: #dbeafe; stroke: #60a5fa; stroke-width: 1.2; }
-    .envRel  { fill: #f3e8ff; stroke: #c084fc; stroke-width: 1.2; }
-    .envLive { fill: #dcfce7; stroke: #4ade80; stroke-width: 1.2; }
-    .envQaT  { fill: #1e40af; font-size: 11.5px; font-weight: 600; }
-    .envRelT { fill: #6b21a8; font-size: 11.5px; font-weight: 600; }
-    .envLiveT{ fill: #166534; font-size: 11.5px; font-weight: 600; }
+    .bg       { fill: #ffffff; }
+    .title    { fill: #0f172a; font-size: 15px; font-weight: 700; }
+    .brName   { font-size: 12.5px; font-weight: 700; }
+
+    .featLine { stroke: #8b5cf6; stroke-width: 2.5; fill: none; }
+    .devLine  { stroke: #3b82f6; stroke-width: 2.5; fill: none; }
+    .relLine  { stroke: #f59e0b; stroke-width: 2.5; fill: none; }
+    .mainLine { stroke: #22c55e; stroke-width: 2.5; fill: none; }
+
+    .featDot  { fill: #8b5cf6; }
+    .devDot   { fill: #3b82f6; }
+    .relDot   { fill: #f59e0b; }
+    .mainDot  { fill: #22c55e; }
+
+    .featTxt  { fill: #6b21a8; }
+    .devTxt   { fill: #1e40af; }
+    .relTxt   { fill: #92400e; }
+    .mainTxt  { fill: #166534; }
+
+    .flow     { stroke: #94a3b8; stroke-width: 1.8; fill: none; }
+    .flowHead { fill: #94a3b8; }
+    .flowBig  { stroke: #64748b; stroke-width: 2.2; fill: none; }
+    .flowBigH { fill: #64748b; }
+
+    .tag      { font-size: 11.5px; font-weight: 700; }
+    .tagFull  { font-size: 12.5px; font-weight: 700; }
+    .note     { fill: #475569; font-size: 11.5px; }
+    .small    { fill: #64748b; font-size: 10.5px; }
+
+    .envQa    { fill: #dbeafe; stroke: #60a5fa; stroke-width: 1.2; }
+    .envRel   { fill: #f3e8ff; stroke: #c084fc; stroke-width: 1.2; }
+    .envLive  { fill: #dcfce7; stroke: #4ade80; stroke-width: 1.2; }
+    .envQaT   { fill: #1e40af; font-size: 11.5px; font-weight: 600; }
+    .envRelT  { fill: #6b21a8; font-size: 11.5px; font-weight: 600; }
+    .envLiveT { fill: #166534; font-size: 11.5px; font-weight: 600; }
+
+    .callout  { fill: #fffbeb; stroke: #f59e0b; stroke-width: 1.2; }
+    .calloutT { fill: #92400e; font-size: 11.5px; }
 
     @media (prefers-color-scheme: dark) {
-      .bg      { fill: #0f172a; }
-      .title   { fill: #f1f5f9; }
-      .devLine { stroke: #60a5fa; }
-      .relLine { stroke: #fbbf24; }
-      .mainLine{ stroke: #4ade80; }
-      .devDot  { fill: #60a5fa; }
-      .relDot  { fill: #fbbf24; }
-      .mainDot { fill: #4ade80; }
-      .devTxt  { fill: #bfdbfe; }
-      .relTxt  { fill: #fde68a; }
-      .mainTxt { fill: #bbf7d0; }
-      .flow    { stroke: #94a3b8; }
-      .flowHead{ fill: #94a3b8; }
-      .note    { fill: #cbd5e1; }
-      .tick    { fill: #cbd5e1; }
-      .dash    { stroke: #475569; }
-      .envQa   { fill: #1e3a5f; stroke: #60a5fa; }
-      .envRel  { fill: #3b1e5e; stroke: #c084fc; }
-      .envLive { fill: #14532d; stroke: #4ade80; }
-      .envQaT  { fill: #bfdbfe; }
-      .envRelT { fill: #e9d5ff; }
-      .envLiveT{ fill: #bbf7d0; }
+      .bg       { fill: #0f172a; }
+      .title    { fill: #f1f5f9; }
+      .featLine { stroke: #a78bfa; }
+      .devLine  { stroke: #60a5fa; }
+      .relLine  { stroke: #fbbf24; }
+      .mainLine { stroke: #4ade80; }
+      .featDot  { fill: #a78bfa; }
+      .devDot   { fill: #60a5fa; }
+      .relDot   { fill: #fbbf24; }
+      .mainDot  { fill: #4ade80; }
+      .featTxt  { fill: #e9d5ff; }
+      .devTxt   { fill: #bfdbfe; }
+      .relTxt   { fill: #fde68a; }
+      .mainTxt  { fill: #bbf7d0; }
+      .flow     { stroke: #64748b; }
+      .flowHead { fill: #64748b; }
+      .flowBig  { stroke: #94a3b8; }
+      .flowBigH { fill: #94a3b8; }
+      .note     { fill: #cbd5e1; }
+      .small    { fill: #94a3b8; }
+      .envQa    { fill: #1e3a5f; stroke: #60a5fa; }
+      .envRel   { fill: #3b1e5e; stroke: #c084fc; }
+      .envLive  { fill: #14532d; stroke: #4ade80; }
+      .envQaT   { fill: #bfdbfe; }
+      .envRelT  { fill: #e9d5ff; }
+      .envLiveT { fill: #bbf7d0; }
+      .callout  { fill: #422006; stroke: #fbbf24; }
+      .calloutT { fill: #fde68a; }
     }
   </style>
 
-  <rect class="bg" x="0" y="0" width="980" height="440"/>
-  <text class="title" x="24" y="28">單一循環 · 分支流向</text>
+  <rect class="bg" x="0" y="0" width="1000" height="500"/>
+  <text class="title" x="24" y="30">單一循環 · 分支與 tag 的關係</text>
 
-  <!-- 時間刻度 -->
-  <line class="dash" x1="150" y1="44" x2="150" y2="390"/>
-  <text class="tick" x="150" y="58" text-anchor="middle">週三 PM</text>
+  <!-- ───── feature / fix 短分支（develop 上方） ───── -->
+  <line class="featLine" x1="170" y1="80" x2="290" y2="80"/>
+  <circle class="featDot" cx="215" cy="80" r="4.5"/>
+  <circle class="featDot" cx="255" cy="80" r="4.5"/>
+  <text class="brName featTxt" x="170" y="66">feature/checkout</text>
 
-  <line class="dash" x1="400" y1="44" x2="400" y2="390"/>
-  <text class="tick" x="400" y="58" text-anchor="middle">週五 PM</text>
+  <line class="featLine" x1="340" y1="80" x2="440" y2="80"/>
+  <circle class="featDot" cx="385" cy="80" r="4.5"/>
+  <text class="brName featTxt" x="340" y="66">fix/login-error</text>
 
-  <line class="dash" x1="660" y1="44" x2="660" y2="390"/>
-  <text class="tick" x="660" y="58" text-anchor="middle">隔週三 AM</text>
+  <text class="small" x="470" y="84">← 都走 MR 進 develop,不打 tag</text>
 
-  <text class="note" x="275" y="58" text-anchor="middle">窗口期 · feat + fix</text>
-  <text class="note" x="530" y="58" text-anchor="middle">凍結期 · 只收 fix</text>
+  <!-- develop → feature 分出 / 收回 -->
+  <path class="flow" d="M170,150 C170,110 170,96 168,82"/>
+  <polygon class="flowHead" points="170,78 164,88 176,88"/>
+  <path class="flow" d="M290,80 C290,118 290,132 292,146"/>
+  <polygon class="flowHead" points="293,150 287,140 299,140"/>
 
-  <!-- develop 線 -->
-  <line class="devLine" x1="100" y1="100" x2="940" y2="100"/>
-  <text class="brName devTxt" x="24" y="104">develop</text>
-  <circle class="devDot" cx="120" cy="100" r="5"/>
-  <circle class="devDot" cx="250" cy="100" r="5"/>
-  <circle class="devDot" cx="330" cy="100" r="5"/>
-  <circle class="devDot" cx="470" cy="100" r="5"/>
-  <text class="note" x="255" y="88">下一版的功能繼續進 develop</text>
+  <path class="flow" d="M340,150 C340,110 340,96 338,82"/>
+  <polygon class="flowHead" points="340,78 334,88 346,88"/>
+  <path class="flow" d="M440,80 C440,118 440,132 442,146"/>
+  <polygon class="flowHead" points="443,150 437,140 449,140"/>
 
-  <!-- release 線 -->
-  <line class="relLine" x1="180" y1="225" x2="800" y2="225"/>
-  <text class="brName relTxt" x="24" y="222">release/</text>
-  <text class="brName relTxt" x="24" y="238">  1.0</text>
+  <!-- ───── develop ───── -->
+  <line class="devLine" x1="100" y1="150" x2="960" y2="150"/>
+  <text class="brName devTxt" x="24" y="154">develop</text>
+  <circle class="devDot" cx="120" cy="150" r="5"/>
+  <circle class="devDot" cx="293" cy="150" r="5"/>
+  <circle class="devDot" cx="443" cy="150" r="5"/>
 
-  <!-- 分岔：develop → release -->
-  <path class="flow" d="M150,100 C150,160 165,180 178,222"/>
-  <polygon class="flowHead" points="180,226 172,217 179,215"/>
-  <text class="note" x="86" y="160">開分支</text>
+  <!-- develop → release 分出 -->
+  <path class="flowBig" d="M480,150 C480,220 490,244 498,266"/>
+  <polygon class="flowBigH" points="500,272 491,263 499,260"/>
+  <text class="note" x="392" y="212">開 release/26.0</text>
 
-  <!-- release 上的發版點 -->
+  <!-- ───── release/26.0 ───── -->
+  <line class="relLine" x1="500" y1="275" x2="830" y2="275"/>
+  <text class="brName relTxt" x="24" y="272">release/26.0</text>
+  <text class="small" x="24" y="288">(分支名兩碼)</text>
+
   <g class="relDot">
-    <circle cx="210" cy="225" r="5"/>
-    <circle cx="280" cy="225" r="5"/>
-    <circle cx="350" cy="225" r="5"/>
-    <circle cx="440" cy="225" r="5"/>
-    <circle cx="510" cy="225" r="5"/>
-    <circle cx="580" cy="225" r="5"/>
-    <circle cx="680" cy="225" r="6"/>
-  </g>
-  <g class="tag relTxt" text-anchor="middle">
-    <text x="210" y="248">beta.0</text>
-    <text x="280" y="248">beta.1</text>
-    <text x="350" y="248">beta.2</text>
-    <text x="440" y="248">beta.3</text>
-    <text x="510" y="248">beta.4</text>
-    <text x="580" y="248">beta.5</text>
-    <text x="680" y="248">rc.0</text>
-  </g>
-  <g class="note" text-anchor="middle" font-size="10.5">
-    <text x="210" y="262">feat</text>
-    <text x="280" y="262">feat</text>
-    <text x="350" y="262">feat</text>
-    <text x="440" y="262">fix</text>
-    <text x="510" y="262">fix</text>
-    <text x="580" y="262">fix</text>
+    <circle cx="545" cy="275" r="5.5"/>
+    <circle cx="625" cy="275" r="5"/>
+    <circle cx="695" cy="275" r="5"/>
+    <circle cx="775" cy="275" r="6"/>
   </g>
 
-  <!-- 環境色塊 -->
-  <rect class="envQa" x="185" y="276" width="420" height="24" rx="4"/>
-  <text class="envQaT" x="395" y="292" text-anchor="middle">qa 環境 · QA 驗</text>
+  <!-- 第一顆標完整版號，其餘簡寫 -->
+  <text class="tagFull relTxt" x="545" y="299" text-anchor="middle">v26.0.0-beta.0</text>
+  <text class="tag relTxt" x="625" y="299" text-anchor="middle">beta.1</text>
+  <text class="tag relTxt" x="695" y="299" text-anchor="middle">beta.2</text>
+  <text class="tag relTxt" x="775" y="299" text-anchor="middle">rc.0</text>
 
-  <rect class="envRel" x="628" y="276" width="172" height="24" rx="4"/>
-  <text class="envRelT" x="714" y="292" text-anchor="middle">release 環境 · 客戶驗收</text>
+  <!-- 環境 -->
+  <rect class="envQa" x="512" y="316" width="212" height="24" rx="4"/>
+  <text class="envQaT" x="618" y="332" text-anchor="middle">qa 環境 · QA 驗</text>
 
-  <!-- main 線 -->
-  <line class="mainLine" x1="100" y1="360" x2="940" y2="360"/>
-  <text class="brName mainTxt" x="24" y="364">main</text>
-  <circle class="mainDot" cx="810" cy="360" r="6"/>
-  <text class="tag mainTxt" x="810" y="382" text-anchor="middle">v1.0.0</text>
+  <rect class="envRel" x="732" y="316" width="150" height="24" rx="4"/>
+  <text class="envRelT" x="807" y="332" text-anchor="middle">release 環境 · 客戶驗收</text>
 
-  <rect class="envLive" x="845" y="348" width="80" height="24" rx="4"/>
-  <text class="envLiveT" x="885" y="364" text-anchor="middle">live</text>
+  <!-- release → main -->
+  <path class="flowBig" d="M830,275 C830,390 830,410 836,424"/>
+  <polygon class="flowBigH" points="839,430 830,421 838,418"/>
+  <text class="note" x="762" y="415">驗收通過</text>
 
-  <!-- release → main（驗收通過，上線） -->
-  <path class="flow" d="M800,225 C800,300 800,320 807,354"/>
-  <polygon class="flowHead" points="810,360 802,351 809,349"/>
-  <text class="note" x="742" y="320">驗收通過</text>
+  <!-- ───── main ───── -->
+  <line class="mainLine" x1="100" y1="430" x2="960" y2="430"/>
+  <text class="brName mainTxt" x="24" y="434">main</text>
+  <circle class="mainDot" cx="840" cy="430" r="6"/>
+  <text class="tagFull mainTxt" x="840" y="454" text-anchor="middle">v26.0.0</text>
 
-  <!-- main → develop（上線後才回補） -->
-  <path class="flow" d="M860,360 C900,360 905,180 900,108"/>
-  <polygon class="flowHead" points="900,100 894,110 906,110"/>
-  <text class="note" x="908" y="240">merge</text>
-  <text class="note" x="908" y="256">main</text>
+  <rect class="envLive" x="884" y="418" width="66" height="24" rx="4"/>
+  <text class="envLiveT" x="917" y="434" text-anchor="middle">live</text>
 
-  <!-- 說明 -->
-  <text class="note" x="24" y="412"><tspan font-weight="700">release 分支存活期間不回補 develop</tspan> —— 只有正式版上線後,才由 main 一次流回 develop(見第 12 節)。</text>
-  <text class="note" x="24" y="430">兩段收的東西不同,但流程完全一樣:進 test-lab 自驗 → 進 release 分支 → 發一顆 beta.N → 進 qa 環境。</text>
+  <!-- main → develop 回補 -->
+  <path class="flowBig" d="M890,430 C946,430 950,240 942,158"/>
+  <polygon class="flowBigH" points="940,150 934,161 946,159"/>
+  <text class="note" x="952" y="300">merge</text>
+  <text class="note" x="952" y="316">main</text>
+
+  <!-- 底部說明 -->
+  <rect class="callout" x="24" y="464" width="700" height="24" rx="4"/>
+  <text class="calloutT" x="36" y="481">分支名只有兩碼(release/26.0),tag 才是完整版號(v26.0.0-beta.0),而且 tag 打在 release 分支上。</text>
+  <text class="note" x="740" y="481"><tspan font-weight="700">上線後才回補 develop</tspan>(見第 12 節)</text>
 </svg>
