@@ -307,7 +307,7 @@ git push -u origin release/1.1
 npx release-it 1.1.0-beta.0 --ci        # 明確寫死,不要讓它自己算
 ```
 
-**單一 release 分支時沒這個問題**——`develop` 就是上一個正式版,`npm run release:beta -- minor` 正確算出下一個 minor。只有並行時第二條分支才要寫死版號。
+**單一 release 分支時 `-- minor` 剛好會算對**,但不建議依賴它——哪天有人開了第二條分支,同樣的指令就會撞號,而且不會有人記得要改。一律寫死版號,照抄分支名最省事。
 
 ---
 
