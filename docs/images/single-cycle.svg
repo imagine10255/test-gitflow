@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" width="1000" height="420" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 470" width="1040" height="470" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif">
   <style>
     .bg       { fill: #ffffff; }
     .title    { fill: #0f172a; font-size: 15px; font-weight: 700; }
@@ -7,16 +7,19 @@
     .featLine { stroke: #8b5cf6; stroke-width: 2.5; fill: none; }
     .devLine  { stroke: #3b82f6; stroke-width: 2.5; fill: none; }
     .relLine  { stroke: #f59e0b; stroke-width: 2.5; fill: none; }
+    .fixLine  { stroke: #ec4899; stroke-width: 2.5; fill: none; }
     .mainLine { stroke: #22c55e; stroke-width: 2.5; fill: none; }
 
     .featDot  { fill: #8b5cf6; }
     .devDot   { fill: #3b82f6; }
     .relDot   { fill: #f59e0b; }
+    .fixDot   { fill: #ec4899; }
     .mainDot  { fill: #22c55e; }
 
     .featTxt  { fill: #6b21a8; }
     .devTxt   { fill: #1e40af; }
     .relTxt   { fill: #92400e; }
+    .fixTxt   { fill: #9d174d; }
     .mainTxt  { fill: #166534; }
 
     .flow     { stroke: #94a3b8; stroke-width: 1.8; fill: none; }
@@ -29,13 +32,6 @@
     .note     { fill: #475569; font-size: 11.5px; }
     .small    { fill: #64748b; font-size: 10.5px; }
 
-    .envQa    { fill: #dbeafe; stroke: #60a5fa; stroke-width: 1.2; }
-    .envRel   { fill: #f3e8ff; stroke: #c084fc; stroke-width: 1.2; }
-    .envLive  { fill: #dcfce7; stroke: #4ade80; stroke-width: 1.2; }
-    .envQaT   { fill: #1e40af; font-size: 11.5px; font-weight: 600; }
-    .envRelT  { fill: #6b21a8; font-size: 11.5px; font-weight: 600; }
-    .envLiveT { fill: #166534; font-size: 11.5px; font-weight: 600; }
-
     .callout  { fill: #fffbeb; stroke: #f59e0b; stroke-width: 1.2; }
     .calloutT { fill: #92400e; font-size: 11.5px; }
 
@@ -45,14 +41,17 @@
       .featLine { stroke: #a78bfa; }
       .devLine  { stroke: #60a5fa; }
       .relLine  { stroke: #fbbf24; }
+      .fixLine  { stroke: #f472b6; }
       .mainLine { stroke: #4ade80; }
       .featDot  { fill: #a78bfa; }
       .devDot   { fill: #60a5fa; }
       .relDot   { fill: #fbbf24; }
+      .fixDot   { fill: #f472b6; }
       .mainDot  { fill: #4ade80; }
       .featTxt  { fill: #e9d5ff; }
       .devTxt   { fill: #bfdbfe; }
       .relTxt   { fill: #fde68a; }
+      .fixTxt   { fill: #fbcfe8; }
       .mainTxt  { fill: #bbf7d0; }
       .flow     { stroke: #64748b; }
       .flowHead { fill: #64748b; }
@@ -60,31 +59,25 @@
       .flowBigH { fill: #94a3b8; }
       .note     { fill: #cbd5e1; }
       .small    { fill: #94a3b8; }
-      .envQa    { fill: #1e3a5f; stroke: #60a5fa; }
-      .envRel   { fill: #3b1e5e; stroke: #c084fc; }
-      .envLive  { fill: #14532d; stroke: #4ade80; }
-      .envQaT   { fill: #bfdbfe; }
-      .envRelT  { fill: #e9d5ff; }
-      .envLiveT { fill: #bbf7d0; }
       .callout  { fill: #422006; stroke: #fbbf24; }
       .calloutT { fill: #fde68a; }
     }
   </style>
 
-  <rect class="bg" x="0" y="0" width="1000" height="420"/>
+  <rect class="bg" x="0" y="0" width="1040" height="470"/>
   <text class="title" x="24" y="30">單一循環 · 分支與 tag 的關係</text>
 
-  <!-- ───── feature / fix 短分支（develop 上方） ───── -->
+  <!-- ───── develop 上方：feature / fix ───── -->
   <line class="featLine" x1="170" y1="80" x2="290" y2="80"/>
   <circle class="featDot" cx="215" cy="80" r="4.5"/>
   <circle class="featDot" cx="255" cy="80" r="4.5"/>
   <text class="brName featTxt" x="170" y="66">feature/RDS-001</text>
 
-  <line class="featLine" x1="340" y1="80" x2="440" y2="80"/>
-  <circle class="featDot" cx="385" cy="80" r="4.5"/>
-  <text class="brName featTxt" x="340" y="66">fix/SG-3656</text>
+  <line class="fixLine" x1="340" y1="80" x2="440" y2="80"/>
+  <circle class="fixDot" cx="385" cy="80" r="4.5"/>
+  <text class="brName fixTxt" x="340" y="66">fix/SG-3656</text>
+  <text class="small" x="452" y="70">← develop 的 bug</text>
 
-  <!-- develop → feature 分出 / 收回 -->
   <path class="flow" d="M170,150 C170,110 170,96 168,82"/>
   <polygon class="flowHead" points="170,78 164,88 176,88"/>
   <path class="flow" d="M290,80 C290,118 290,132 292,146"/>
@@ -96,53 +89,63 @@
   <polygon class="flowHead" points="443,150 437,140 449,140"/>
 
   <!-- ───── develop ───── -->
-  <line class="devLine" x1="100" y1="150" x2="960" y2="150"/>
+  <line class="devLine" x1="100" y1="150" x2="1000" y2="150"/>
   <text class="brName devTxt" x="24" y="154">develop</text>
   <circle class="devDot" cx="120" cy="150" r="5"/>
   <circle class="devDot" cx="293" cy="150" r="5"/>
   <circle class="devDot" cx="443" cy="150" r="5"/>
 
-  <!-- develop → release 分出 -->
-  <path class="flowBig" d="M480,150 C480,220 490,244 498,266"/>
-  <polygon class="flowBigH" points="500,272 491,263 499,260"/>
-  <text class="note" x="392" y="212">開 release/26.0</text>
+  <!-- develop → release -->
+  <path class="flowBig" d="M480,150 C480,215 490,240 498,262"/>
+  <polygon class="flowBigH" points="500,268 491,259 499,256"/>
+  <text class="note" x="368" y="206">開 release/26.0</text>
 
   <!-- ───── release/26.0 ───── -->
-  <line class="relLine" x1="500" y1="275" x2="850" y2="275"/>
-  <text class="brName relTxt" x="24" y="272">release/26.0</text>
-  <text class="small" x="24" y="288">(分支名兩碼)</text>
+  <line class="relLine" x1="500" y1="272" x2="900" y2="272"/>
+  <text class="brName relTxt" x="24" y="269">release/26.0</text>
+  <text class="small" x="24" y="285">(分支名兩碼)</text>
 
   <g class="relDot">
-    <circle cx="540" cy="275" r="5.5"/>
-    <circle cx="615" cy="275" r="5"/>
-    <circle cx="678" cy="275" r="5"/>
-    <circle cx="742" cy="275" r="5.5"/>
-    <circle cx="820" cy="275" r="7"/>
+    <circle cx="546" cy="272" r="5.5"/>
+    <circle cx="640" cy="272" r="5"/>
+    <circle cx="742" cy="272" r="5"/>
+    <circle cx="806" cy="272" r="5.5"/>
+    <circle cx="868" cy="272" r="7"/>
   </g>
 
-  <!-- 第一顆與正式版標完整版號，中間簡寫 -->
-  <text class="tagFull relTxt" x="540" y="299" text-anchor="middle">v26.0.0-beta.0</text>
-  <text class="tag relTxt" x="615" y="299" text-anchor="middle">beta.1</text>
-  <text class="tag relTxt" x="678" y="299" text-anchor="middle">beta.2</text>
-  <text class="tag relTxt" x="742" y="299" text-anchor="middle">rc.0</text>
-  <text class="tagFull relTxt" x="820" y="299" text-anchor="middle">v26.0.0</text>
+  <text class="tagFull relTxt" x="546" y="296" text-anchor="middle">v26.0.0-beta.0</text>
+  <text class="tag relTxt" x="640" y="296" text-anchor="middle">beta.1</text>
+  <text class="tag relTxt" x="742" y="296" text-anchor="middle">beta.2</text>
+  <text class="tag relTxt" x="806" y="296" text-anchor="middle">rc.0</text>
+  <text class="tagFull relTxt" x="868" y="296" text-anchor="middle">v26.0.0</text>
 
-  <!-- release → main（發完正式版才 merge 進 main） -->
-  <path class="flowBig" d="M850,275 C876,275 878,320 872,344"/>
-  <polygon class="flowBigH" points="870,350 864,339 876,341"/>
+  <!-- ───── release 下方：fix/26.0（release 分支的 bug） ───── -->
+  <line class="fixLine" x1="672" y1="350" x2="716" y2="350"/>
+  <circle class="fixDot" cx="694" cy="350" r="4.5"/>
+  <text class="brName fixTxt" x="636" y="374">fix/26.0/SG-3702</text>
+  <text class="small" x="636" y="390">release 分支的 bug(QA 或客戶回報)</text>
+
+  <path class="flow" d="M672,280 C672,322 672,334 670,346"/>
+  <polygon class="flowHead" points="672,350 666,340 678,340"/>
+  <path class="flow" d="M716,350 C716,318 716,304 718,290"/>
+  <polygon class="flowHead" points="719,278 713,289 725,287"/>
+
+  <!-- release → main -->
+  <path class="flowBig" d="M900,272 C934,272 936,388 930,410"/>
+  <polygon class="flowBigH" points="928,416 922,405 934,407"/>
 
   <!-- ───── main ───── -->
-  <line class="mainLine" x1="100" y1="350" x2="960" y2="350"/>
-  <text class="brName mainTxt" x="24" y="354">main</text>
-  <circle class="mainDot" cx="868" cy="350" r="6"/>
+  <line class="mainLine" x1="100" y1="416" x2="1000" y2="416"/>
+  <text class="brName mainTxt" x="24" y="420">main</text>
+  <circle class="mainDot" cx="926" cy="416" r="6"/>
 
-  <!-- main → develop 回補 -->
-  <path class="flowBig" d="M900,350 C972,350 976,220 968,158"/>
-  <polygon class="flowBigH" points="966,150 960,161 972,159"/>
-  <text class="note" x="930" y="262">merge</text>
-  <text class="note" x="930" y="278">main</text>
+  <!-- main → develop -->
+  <path class="flowBig" d="M954,416 C1014,416 1018,230 1010,158"/>
+  <polygon class="flowBigH" points="1008,150 1002,161 1014,159"/>
+  <text class="note" x="972" y="222">merge</text>
+  <text class="note" x="972" y="238">main</text>
 
   <!-- 底部說明 -->
-  <rect class="callout" x="24" y="382" width="810" height="24" rx="4"/>
-  <text class="calloutT" x="36" y="399">所有 tag(含正式版)都打在 <tspan font-weight="700">release 分支</tspan>上——分支名兩碼 release/26.0,tag 是完整版號 v26.0.0。上線後才回補 develop(見第 12 節)。</text>
+  <rect class="callout" x="24" y="442" width="840" height="24" rx="4"/>
+  <text class="calloutT" x="36" y="459">bug 在哪個環境被看到,就從那個環境對應的分支開——分支名帶版號的(fix/26.0/*)就是從 release 分支開的。</text>
 </svg>
