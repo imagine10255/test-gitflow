@@ -9,7 +9,8 @@
   "scripts": {
     "release:beta": "release-it --preRelease=beta --ci",
     "release:rc": "release-it --preRelease=rc --ci",
-    "release:live": "release-it --ci"
+    "release:live": "release-it --ci",
+    "release:first": "release-it --preRelease=beta --ci"
   },
   "repository": {
     "type": "git",
