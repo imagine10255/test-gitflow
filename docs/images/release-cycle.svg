@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" width="960" height="360" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif">
+  <style>
+    .bg    { fill: #ffffff; }
+    .axis  { stroke: #64748b; stroke-width: 2; }
+    .tick  { stroke: #94a3b8; stroke-width: 1.5; }
+    .day   { fill: #475569; font-size: 13px; font-weight: 600; }
+    .sub   { fill: #64748b; font-size: 11.5px; }
+    .title { fill: #0f172a; font-size: 15px; font-weight: 700; }
+    .boxA  { fill: #dbeafe; stroke: #3b82f6; stroke-width: 1.5; }
+    .boxB  { fill: #fef3c7; stroke: #f59e0b; stroke-width: 1.5; }
+    .boxL  { fill: #dcfce7; stroke: #22c55e; stroke-width: 1.5; }
+    .boxR  { fill: #f3e8ff; stroke: #a855f7; stroke-width: 1.5; }
+    .lblA  { fill: #1e40af; font-size: 12.5px; font-weight: 600; }
+    .lblB  { fill: #92400e; font-size: 12.5px; font-weight: 600; }
+    .lblL  { fill: #166534; font-size: 12.5px; font-weight: 600; }
+    .lblR  { fill: #6b21a8; font-size: 12.5px; font-weight: 600; }
+    .note  { fill: #475569; font-size: 11.5px; }
+    .mark  { fill: #ef4444; }
+    .dash  { stroke: #cbd5e1; stroke-width: 1; stroke-dasharray: 3 3; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg    { fill: #0f172a; }
+      .axis  { stroke: #94a3b8; }
+      .tick  { stroke: #64748b; }
+      .day   { fill: #cbd5e1; }
+      .sub   { fill: #94a3b8; }
+      .title { fill: #f1f5f9; }
+      .boxA  { fill: #1e3a5f; stroke: #60a5fa; }
+      .boxB  { fill: #4a3410; stroke: #fbbf24; }
+      .boxL  { fill: #14532d; stroke: #4ade80; }
+      .boxR  { fill: #3b1e5e; stroke: #c084fc; }
+      .lblA  { fill: #bfdbfe; }
+      .lblB  { fill: #fde68a; }
+      .lblL  { fill: #bbf7d0; }
+      .lblR  { fill: #e9d5ff; }
+      .note  { fill: #cbd5e1; }
+      .mark  { fill: #f87171; }
+      .dash  { stroke: #475569; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="960" height="360"/>
+  <text class="title" x="24" y="30">7 天發版循環</text>
+
+  <!-- 交界虛線 -->
+  <line class="dash" x1="100" y1="52" x2="100" y2="300"/>
+  <line class="dash" x1="860" y1="52" x2="860" y2="300"/>
+
+  <!-- 上方：週三 AM 同時發生的三件事 -->
+  <rect class="boxL" x="20" y="56" width="160" height="26" rx="4"/>
+  <text class="lblL" x="30" y="74">上一循環 rc 通過 → 發 live</text>
+
+  <rect class="boxA" x="20" y="88" width="160" height="26" rx="4"/>
+  <text class="lblA" x="30" y="106">開 release 分支</text>
+
+  <rect class="boxA" x="20" y="120" width="160" height="26" rx="4"/>
+  <text class="lblA" x="30" y="138">重置 test-lab</text>
+
+  <!-- 右端：隔週三 AM -->
+  <rect class="boxR" x="780" y="56" width="160" height="26" rx="4"/>
+  <text class="lblR" x="790" y="74">發 rc.0 → release 環境</text>
+
+  <rect class="boxR" x="780" y="88" width="160" height="26" rx="4"/>
+  <text class="lblR" x="790" y="106">下一循環開始</text>
+
+  <!-- 時間軸 -->
+  <line class="axis" x1="60" y1="190" x2="900" y2="190"/>
+  <polygon class="axis" fill="#64748b" points="900,190 890,185 890,195"/>
+
+  <!-- 刻度 -->
+  <g>
+    <line class="tick" x1="100" y1="182" x2="100" y2="198"/>
+    <text class="day" x="100" y="215" text-anchor="middle">週三 AM</text>
+
+    <line class="tick" x1="230" y1="184" x2="230" y2="196"/>
+    <text class="day" x="230" y="215" text-anchor="middle">週三 PM</text>
+
+    <line class="tick" x1="420" y1="184" x2="420" y2="196"/>
+    <text class="day" x="420" y="215" text-anchor="middle">週五 PM</text>
+
+    <line class="tick" x1="580" y1="184" x2="580" y2="196"/>
+    <text class="day" x="580" y="215" text-anchor="middle">週末</text>
+
+    <line class="tick" x1="720" y1="184" x2="720" y2="196"/>
+    <text class="day" x="720" y="215" text-anchor="middle">週二</text>
+
+    <line class="tick" x1="860" y1="182" x2="860" y2="198"/>
+    <text class="day" x="860" y="215" text-anchor="middle">隔週三 AM</text>
+  </g>
+
+  <!-- 交界標記 -->
+  <circle class="mark" cx="100" cy="190" r="5"/>
+  <circle class="mark" cx="860" cy="190" r="5"/>
+
+  <!-- 下方：兩個收件窗口 -->
+  <rect class="boxA" x="100" y="244" width="320" height="34" rx="4"/>
+  <text class="lblA" x="260" y="266" text-anchor="middle">窗口期 · 收 feat + fix</text>
+
+  <rect class="boxB" x="420" y="244" width="440" height="34" rx="4"/>
+  <text class="lblB" x="640" y="266" text-anchor="middle">凍結期 · 只收 fix</text>
+
+  <text class="note" x="100" y="300">兩段流程完全一樣:進 test-lab 自驗 → 進 release 分支 → 發一顆 beta.N → 進 qa 環境</text>
+  <text class="note" x="100" y="320">差別只在收什麼。凍結期的 feat 該不該放行,由審查者判斷,不是機器規則。</text>
+  <text class="note" x="100" y="340">紅點是交界:同一個時間點,上一循環結束、這一循環開始。</text>
+</svg>

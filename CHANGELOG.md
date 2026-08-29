@@ -1,5 +1,34 @@
 # Changelog
 
+## [26.0.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-rc.1...v26.0.0) (2026-08-29)
+
+## [26.0.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-rc.0...v26.0.0-rc.1) (2026-08-29)
+
+### Bug Fixes
+
+* **checkout:** payment timeout on slow network (SG-3702) ([39d704e](https://github.com/imagine10255/test-gitflow/commit/39d704ea806d7e3e22e45bd785238464793952a2))
+
+## [26.0.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-beta.1...v26.0.0-rc.0) (2026-08-29)
+
+## [26.0.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-beta.0...v26.0.0-beta.1) (2026-08-29)
+
+### Bug Fixes
+
+* **checkout:** expired coupon still applied (SG-3689) ([32db3e4](https://github.com/imagine10255/test-gitflow/commit/32db3e4a323e0de914c91ff152cb80a2d58a4e6f))
+* **checkout:** tax rounding off by one cent (SG-3689) ([546a6ed](https://github.com/imagine10255/test-gitflow/commit/546a6ed77ae3c933db53bdc26274c5fb4813812f))
+
+## [26.0.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.1...v26.0.0-beta.0) (2026-08-29)
+
+### Features
+
+* **checkout:** add express checkout flow ([f0c4e2e](https://github.com/imagine10255/test-gitflow/commit/f0c4e2e09cd856677c002a58a913be4fc7b29b1b))
+* **checkout:** calculate tax by region ([64b2e6d](https://github.com/imagine10255/test-gitflow/commit/64b2e6d80fda9abee30e76b4804d9a02fb30f69c))
+* **checkout:** support coupon codes ([0c3d450](https://github.com/imagine10255/test-gitflow/commit/0c3d450af9700345d0aa991fdb6dae305fde238e))
+
+### Bug Fixes
+
+* **auth:** login error message not shown (SG-3656) ([f7f1fd4](https://github.com/imagine10255/test-gitflow/commit/f7f1fd40e5625e3e88482da3517adb09152b05a8))
+
 ## [1.6.1](https://github.com/imagine10255/test-gitflow/compare/v1.6.1-rc.0...v1.6.1) (2026-08-27)
 
 ## [1.6.1-rc.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.0...v1.6.1-rc.0) (2026-08-27)
