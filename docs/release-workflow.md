@@ -24,6 +24,23 @@
 
 **lab 是免洗的,不打 tag。** merge 進 `test-lab` 就部署。只有 qa 以上才留 tag,因為那些是別人驗過、需要追溯的版本。
 
+### ⚠️ 每個環境同時只能有一條 release 分支佔用
+
+**qa 和 release 各只有一套環境,沒有第二份。** 兩條 release 分支同時發同一種預發版,後發的會直接把前一個蓋掉——正在測的人版本會突然倒退、功能變少,而且不會收到任何通知。
+
+所以並行時**唯一合法的組合**是:
+
+```
+release/26.0 → rc     → 佔 release 環境(客戶驗收)
+release/26.1 → beta   → 佔 qa 環境(QA)
+```
+
+- ✗ **兩條都在 rc** —— 搶 release 環境
+- ✗ **兩條都在 beta** —— 搶 qa 環境
+- ✓ 一條 rc + 一條 beta —— 各佔一個,互不干擾
+
+這條約束推導出後面好幾條規則:為什麼進 rc 後才開下一條分支(第 6 節)、為什麼並行時前一條不能退回 beta(第 4 節)、為什麼 hotfix 要走 beta 通道不走 rc(第 7 節)。**它們都是同一件事:環境是單一 slot。**
+
 ---
 
 ## 2. 分支
@@ -34,7 +51,8 @@
 | `develop` | — | — (只被 merge,不 merge 出去) | 永久,下一版整合區 |
 | `test-lab` | — | **不合併出去**(單向沙盒) | 永久,但可隨時重置 |
 | `feature/*` | `develop` | `develop` | merge 後砍 |
-| `fix/*` | 當前的 `release/*` | 同一條 `release/*` | merge 後砍 |
+| `fix/*` | `develop` | `develop` | merge 後砍 |
+| `fix/26.0/*` | `release/26.0`(**進 rc 後才用**) | 同一條 `release/26.0` | merge 後砍 |
 | `release/1.0` | `develop` | `main` → 再由 `main` → `develop` | 上線觀察期過後砍 |
 | `hotfix/1.0.1` | `main` | `main` → 再由 `main` → `develop` → 進行中的 `release/*` | 上線後砍 |
 
@@ -42,18 +60,48 @@
 >
 > 所有分支進 release 分支之前,都要先 merge 進 `test-lab` 自己驗一輪。
 
-### `feature/*` 和 `fix/*` 的差別
+### fix 要從哪開
 
-| | 起點 | 終點 | 什麼時候用 |
-|---|---|---|---|
-| `feature/*` | `develop` | `develop`(走 MR) | 新功能,要進下一版 |
-| `fix/*` | **當前的 `release/*`** | **同一條 `release/*`** | 修這一版還沒上線的 bug |
+**一律從 `develop` 開——除非那條 release 分支已經進 rc。**
 
-`fix/*` 不經過 `develop`——它修的是「正在發的這一版」,而那一版的內容只在 release 分支上。修正會在 `1.0.0` 上線時隨 `main` 一起流回 `develop`。
+| 那條 release 分支的狀態 | fix 從哪開 | 分支名 |
+|---|---|---|
+| 還在 beta(或還沒開 release 分支) | `develop` | `fix/SG-3656` |
+| **已經進 rc** | 該 release 分支 | `fix/26.0/SG-3702` |
 
-**beta 階段和 rc 階段的 `fix/*` 用法完全一樣**,差別只在發出來的是 `beta.N+1` 還是 `rc.N+1`,而那由 release 分支當下的階段決定,不需要另外取名(不需要 `rcfix/*` 之類)。
+判斷只需要看那條分支自己的狀態,不用去查別人開了什麼分支。
 
-> 如果同時有兩條 release 分支在跑,`fix/*` 後面可以加版號區分,例如 `fix/1.0-dropdown`。單一分支時不必。
+**為什麼進 rc 後要換起點?** 因為「進 rc」和「開下一條 release 分支」是同一個時間點發生的(見第 6 節)。從那一刻起 `develop` 裝的是下一版的東西,再從 develop 開 fix 併進來就會**夾帶下一版的功能**。
+
+實測:`release/1.7` 開分支後 develop 累積了 19 顆 commit,從 develop 開 fix 併進 `release/1.7`,那 19 顆全部跟著進去——git 不會警告,測試也不會失敗,因為那些功能本身沒問題,只是不該出現在這一版。
+
+**為什麼 beta 階段可以從 develop 開?** 那時 develop 裝的就是這一版的內容(照團隊紀律,要發才 MR 進 develop),夾帶進來的都是本來就要發的,無害。
+
+> **同步前掃一眼要帶什麼進去**,30 秒的事:
+>
+> ```bash
+> git log release/26.0..develop --oneline
+> ```
+>
+> 每一行都會進這一版。這把「靜默夾帶」變成看得見的清單。也可以做成 MR 檢查,自動列出來要人確認。
+
+### fix 什麼時候回到 develop
+
+- **從 `develop` 開的**:併回 `develop`,再由 develop 同步進 release 分支。develop 立刻拿到修正。
+- **從 release 分支開的(`fix/26.0/*`)**:併回同一條 release 分支就好,**不要併回 develop**。
+
+第二種不併回 develop 的理由:那條 fix 分支的**祖先包含整條 release 分支**,merge 進 develop 會把 release commit、版號、CHANGELOG 全部帶過去。修正會在 `26.0.0` 上線時隨 `main` 一起流回 develop,一顆都不會少。
+
+> ⚠️ **例外:如果 `26.0` 整版放棄**,`fix/26.0/*` 的修正會跟著消失(從沒進過 develop)。要撿回來得用 `cherry-pick` 而不是 `merge`:
+>
+> ```bash
+> git switch develop
+> git cherry-pick <fix 的 commit>
+> ```
+>
+> 用 merge 會把整條 release 分支的歷史一起帶進來。
+
+**beta 階段和 rc 階段的 fix,發出來的是 `beta.N+1` 還是 `rc.N+1` 由 release 分支當下的階段決定**,不需要另外取名(不需要 `rcfix/*` 之類)。
 
 分支名用**兩碼**(`release/1.0` 不是 `release/1.0.0`),因為同一條分支內版號的第三碼會變動:發完 `1.0.0-beta.0`、進到 `1.0.0-rc.0` 之後,若客戶回報的問題大到要 QA 重驗,就得升 patch 切回 beta 變成 `1.0.1-beta.0`(rc 不能倒退回 beta,見第 4 節)。用三碼命名的話分支名馬上就對不上了。
 
