@@ -97,26 +97,9 @@ git push --force
 
 ## 3. 時間週期(7 天循環)
 
-```mermaid
-gantt
-    title 一個 7 天循環(週三 AM 交界)
-    dateFormat YYYY-MM-DD
-    axisFormat %a
+![7 天發版循環](images/release-cycle.svg)
 
-    section 收件窗口
-    窗口期 · 收 feat + fix   :active, w1, 2026-01-07, 3d
-    凍結期 · 只收 fix        :crit,   f1, 2026-01-10, 4d
-
-    section release 分支
-    開分支 + 重置 test-lab   :milestone, m0, 2026-01-07, 0d
-    發 beta.N → qa 環境      :          b1, 2026-01-07, 7d
-    發 rc.0 → release 環境   :milestone, m1, 2026-01-14, 0d
-
-    section 上一循環
-    rc 驗收通過 → 發 live    :milestone, m2, 2026-01-07, 0d
-```
-
-週三早上是交界點,同時發生三件事:**上一循環的 rc 驗收通過發 live**、**這一循環開新 release 分支**、**下一循環的 rc 在隔週三發**。
+週三早上是交界點(圖上的紅點),同一個時間點上一循環結束、這一循環開始:**上一循環的 rc 驗收通過發 live**、**這一循環開新 release 分支並重置 test-lab**。
 
 | 期間 | 收什麼 |
 |---|---|
