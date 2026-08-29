@@ -1,6 +1,24 @@
 # Changelog
 
 ## [26.1.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.1...v26.1.0-beta.0) (2026-08-29)
+## [26.0.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-rc.1...v26.0.0) (2026-08-29)
+
+## [26.0.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-rc.0...v26.0.0-rc.1) (2026-08-29)
+
+### Bug Fixes
+
+* **checkout:** payment timeout on slow network (SG-3702) ([39d704e](https://github.com/imagine10255/test-gitflow/commit/39d704ea806d7e3e22e45bd785238464793952a2))
+
+## [26.0.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-beta.1...v26.0.0-rc.0) (2026-08-29)
+
+## [26.0.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-beta.0...v26.0.0-beta.1) (2026-08-29)
+
+### Bug Fixes
+
+* **checkout:** expired coupon still applied (SG-3689) ([32db3e4](https://github.com/imagine10255/test-gitflow/commit/32db3e4a323e0de914c91ff152cb80a2d58a4e6f))
+* **checkout:** tax rounding off by one cent (SG-3689) ([546a6ed](https://github.com/imagine10255/test-gitflow/commit/546a6ed77ae3c933db53bdc26274c5fb4813812f))
+
+## [26.0.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.1...v26.0.0-beta.0) (2026-08-29)
 
 ### Features
 
