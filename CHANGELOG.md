@@ -1,5 +1,7 @@
 # Changelog
 
+## [26.0.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-beta.1...v26.0.0-rc.0) (2026-08-29)
+
 ## [26.0.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-beta.0...v26.0.0-beta.1) (2026-08-29)
 
 ### Bug Fixes
