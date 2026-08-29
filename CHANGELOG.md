@@ -1,5 +1,11 @@
 # Changelog
 
+## [26.1.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v26.1.0-rc.0...v26.1.0-rc.1) (2026-08-29)
+
+### Bug Fixes
+
+* **wishlist:** export fails with unicode names (SG-3768) ([33b6bfc](https://github.com/imagine10255/test-gitflow/commit/33b6bfc63b6a69e5f62d35da0cdd814bc7ad15f0))
+
 ## [26.1.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.1.0-beta.1...v26.1.0-rc.0) (2026-08-29)
 
 ## [26.1.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0...v26.1.0-beta.1) (2026-08-29)
