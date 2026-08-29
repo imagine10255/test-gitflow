@@ -1,5 +1,11 @@
 # Changelog
 
+## [26.0.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-rc.0...v26.0.0-rc.1) (2026-08-29)
+
+### Bug Fixes
+
+* **checkout:** payment timeout on slow network (SG-3702) ([39d704e](https://github.com/imagine10255/test-gitflow/commit/39d704ea806d7e3e22e45bd785238464793952a2))
+
 ## [26.0.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-beta.1...v26.0.0-rc.0) (2026-08-29)
 
 ## [26.0.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-beta.0...v26.0.0-beta.1) (2026-08-29)
