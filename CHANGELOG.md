@@ -1,5 +1,11 @@
 # Changelog
 
+## [26.1.1](https://github.com/imagine10255/test-gitflow/compare/v26.1.0...v26.1.1) (2026-08-30)
+
+### Bug Fixes
+
+* **cart:** crash when cart is empty (SG-3801) ([3ac9a90](https://github.com/imagine10255/test-gitflow/commit/3ac9a90fad3db4aa8697660fa410e8177270b6c3))
+
 ## [26.1.0](https://github.com/imagine10255/test-gitflow/compare/v26.1.0-rc.1...v26.1.0) (2026-08-30)
 
 ## [26.1.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v26.1.0-rc.0...v26.1.0-rc.1) (2026-08-29)
