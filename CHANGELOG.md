@@ -1,5 +1,18 @@
 # Changelog
 
+## [26.2.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.1.0...v26.2.0-rc.0) (2026-08-30)
+
+## [26.2.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v26.1.0...v26.2.0-rc.0) (2026-08-29)
+
+### Features
+
+* **notify:** add notification center ([f1ca3a3](https://github.com/imagine10255/test-gitflow/commit/f1ca3a39f07a6c5b04b2db4d9a04e5437024cec2))
+* **notify:** per-channel preferences ([b01992b](https://github.com/imagine10255/test-gitflow/commit/b01992bff4411f9ed2ee904e2c9b6de267f5e6c3))
+
+### Code Refactoring
+
+* **notify:** extract delivery queue ([3ceac28](https://github.com/imagine10255/test-gitflow/commit/3ceac289a0400c7cf3b64ad5ba02175d68fde868))
+
 ## [26.2.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0...v26.2.0-beta.0) (2026-08-29)
 
 ### Features
