@@ -1,5 +1,30 @@
 # Changelog
 
+## [26.1.0](https://github.com/imagine10255/test-gitflow/compare/v26.1.0-rc.1...v26.1.0) (2026-08-30)
+
+## [26.1.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v26.1.0-rc.0...v26.1.0-rc.1) (2026-08-29)
+
+### Bug Fixes
+
+* **wishlist:** export fails with unicode names (SG-3768) ([33b6bfc](https://github.com/imagine10255/test-gitflow/commit/33b6bfc63b6a69e5f62d35da0cdd814bc7ad15f0))
+
+## [26.1.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.1.0-beta.1...v26.1.0-rc.0) (2026-08-29)
+
+## [26.1.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0...v26.1.0-beta.1) (2026-08-29)
+
+### Bug Fixes
+
+* **wishlist:** duplicate items when adding twice (SG-3741) ([3553214](https://github.com/imagine10255/test-gitflow/commit/355321435673bcc55c439d868c51cfa6d46ebd8b))
+* **wishlist:** shared link ignores permission (SG-3741) ([74418f1](https://github.com/imagine10255/test-gitflow/commit/74418f143557e1cfa1653e6d5f57a01dcee34da8))
+
+## [26.1.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0...v26.1.0-beta.1) (2026-08-29)
+
+### Features
+
+* **wishlist:** add wishlist page ([53515a4](https://github.com/imagine10255/test-gitflow/commit/53515a4ab6bef4259d2acd58a9a2f25e5e3306c9))
+* **wishlist:** share wishlist by link ([ee4e96e](https://github.com/imagine10255/test-gitflow/commit/ee4e96ec9f6b625850c86bfb5d4ff0220fbea219))
+
+## [26.1.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v1.6.1...v26.1.0-beta.0) (2026-08-29)
 ## [26.0.0](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-rc.1...v26.0.0) (2026-08-29)
 
 ## [26.0.0-rc.1](https://github.com/imagine10255/test-gitflow/compare/v26.0.0-rc.0...v26.0.0-rc.1) (2026-08-29)
@@ -24,10 +49,14 @@
 * **checkout:** add express checkout flow ([f0c4e2e](https://github.com/imagine10255/test-gitflow/commit/f0c4e2e09cd856677c002a58a913be4fc7b29b1b))
 * **checkout:** calculate tax by region ([64b2e6d](https://github.com/imagine10255/test-gitflow/commit/64b2e6d80fda9abee30e76b4804d9a02fb30f69c))
 * **checkout:** support coupon codes ([0c3d450](https://github.com/imagine10255/test-gitflow/commit/0c3d450af9700345d0aa991fdb6dae305fde238e))
+* **wishlist:** add wishlist page ([53515a4](https://github.com/imagine10255/test-gitflow/commit/53515a4ab6bef4259d2acd58a9a2f25e5e3306c9))
+* **wishlist:** share wishlist by link ([ee4e96e](https://github.com/imagine10255/test-gitflow/commit/ee4e96ec9f6b625850c86bfb5d4ff0220fbea219))
 
 ### Bug Fixes
 
 * **auth:** login error message not shown (SG-3656) ([f7f1fd4](https://github.com/imagine10255/test-gitflow/commit/f7f1fd40e5625e3e88482da3517adb09152b05a8))
+* **checkout:** expired coupon still applied (SG-3689) ([32db3e4](https://github.com/imagine10255/test-gitflow/commit/32db3e4a323e0de914c91ff152cb80a2d58a4e6f))
+* **checkout:** tax rounding off by one cent (SG-3689) ([546a6ed](https://github.com/imagine10255/test-gitflow/commit/546a6ed77ae3c933db53bdc26274c5fb4813812f))
 
 ## [1.6.1](https://github.com/imagine10255/test-gitflow/compare/v1.6.1-rc.0...v1.6.1) (2026-08-27)
 
