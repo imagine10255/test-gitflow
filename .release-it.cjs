@@ -4,7 +4,8 @@ module.exports = {
   git: {
     commitMessage: 'chore(release): v${version}',
     tagName: 'v${version}',
-    requireBranch: ['main', 'release/*', 'hotfix/*'],
+    // 正式與預發布都只能從專用發版分支建立，避免 main 直接跳過 beta / rc。
+    requireBranch: ['release/*', 'hotfix/*'],
     requireCleanWorkingDir: true,
     push: true,
     requireUpstream: true
