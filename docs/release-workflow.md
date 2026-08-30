@@ -307,7 +307,7 @@ git push -u origin release/1.1
 npx release-it 1.1.0-beta.0 --ci        # 明確寫死,不要讓它自己算
 ```
 
-**單一 release 分支時沒這個問題**——`develop` 就是上一個正式版,`npm run release:beta -- minor` 正確算出下一個 minor。只有並行時第二條分支才要寫死版號。
+**單一 release 分支時 `-- minor` 剛好會算對**,但不建議依賴它——哪天有人開了第二條分支,同樣的指令就會撞號,而且不會有人記得要改。一律寫死版號,照抄分支名最省事。
 
 ---
 
@@ -498,7 +498,7 @@ git push
 # 再從 develop 同步進 release 分支
 git switch release/1.0
 git merge --no-ff develop
-npm run release:beta -- minor                  # → v1.0.0-beta.0(第一顆要帶 minor)
+npm run release:beta -- 26.0.0-beta.0          # 第一顆:照抄分支名寫死版號
 # ← 這裡不回補 develop,見第 12 節
 
 # ── 凍結期:修 bug ──
@@ -516,7 +516,7 @@ npm run release:rc                             # → v1.0.0-rc.0
 
 # ── rc 過:上 live ──
 git log release/1.0..main --oneline            # ① 先確認 main 沒有新 hotfix 沒同步進來
-npm run release:live -- 1.0.0                  # ② 在 release 分支上發,不在 main 上發
+npm run release:live                           # ② 在 release 分支上發,不用帶版號
 
 git switch main    && git merge --no-ff release/1.0 -m "release: v1.0.0" && git push
 git switch develop && git merge --no-ff main -m "merge: v1.0.0 back to develop" && git push
@@ -527,17 +527,13 @@ git push origin --delete release/1.0
 git log develop..main --oneline                # 應為空
 ```
 
-> **第一顆 beta 一定要帶 increment,而且只在起點是穩定版時 `minor` 才有效。**
+> **第一顆 beta 一律寫死版號,不要讓它自己算。**
 >
-> `release/1.0` 從 `develop`(穩定版 `0.9.0`)切出來時,`npm run release:beta -- minor` 正確算出 `1.0.0-beta.0`。
+> 照抄分支名就對了:`release/26.0` → `26.0.0-beta.0`。
 >
-> 但如果起點已經是 prerelease(例如兩條 release 分支重疊時,`develop` 被回補成 `1.0.0-rc.0`),`minor` 會**被吃掉**,實測算出 `1.0.0-rc.1` 撞號。那種情況要用:
+> 不能用 `-- minor` 的原因:`develop` 停在**最後上線的正式版**(照第 12 節),它不知道其他 release 分支發到哪了。實測 `develop` = `26.0.0`、`release/26.1` 進行中時,在新分支上跑 `-- minor` 算出 `26.1.0-beta.0`——撞既有 tag。
 >
-> ```bash
-> npx release-it --increment=preminor --preReleaseId=beta --ci
-> ```
->
-> 見第 11 節。
+> **絕對不要用不帶 `--preRelease` 的指令發第一顆。** 實測 `release-it --ci` 在 `develop`(26.0.0) 上算出 `26.1.0`——**沒有 `-beta` 後綴就是正式版,會直接觸發 live 部署**,而 `--ci` 連問都不問。`release:beta` 裡的 `--preRelease=beta` 是保險絲:就算忘了帶版號,最壞也只是算錯版號撞 tag 失敗,不會變成正式版。
 
 ### 砍分支前的檢查
 
@@ -679,8 +675,8 @@ qa 和 release 是兩次獨立 build,程式碼一樣但產物不保證 byte-iden
 
 | 起點 | 指令 | 結果 |
 |---|---|---|
-| `1.6.0`(穩定) | `release:beta -- minor` | `1.7.0-beta.0` ✓ |
-| `1.6.0-beta.0` | `release:beta -- minor` | `1.6.0-beta.1` ✗ 不是 1.7.0 |
+| `26.0.0`(穩定) | `release:beta -- minor` | `26.1.0-beta.0` ✓ 但可能撞別條分支 |
+| `26.0.0-beta.0` | `release:beta -- minor` | `26.0.0-beta.1` ✗ 不是 26.1.0 |
 | `1.4.0-rc.0` | `release:beta -- patch` | `1.4.0-beta.0` ✗ 倒退且撞既有 tag |
 
 跨版本必須用完整寫法:
@@ -691,6 +687,29 @@ npx release-it --increment=prepatch --preReleaseId=beta --ci   # rc 退回 beta:
 ```
 
 **所以只有「從穩定版起跳的第一顆」可以用 `-- minor`。** 其他情況要嘛不帶參數(遞增序號),要嘛用完整寫法。
+
+### 什麼時候要帶版號
+
+一句話:**起點是 prerelease 就不用帶,起點是穩定版就要帶。**
+
+| 時機 | 指令 | 帶版號? |
+|---|---|---|
+| release 分支第一顆 | `npm run release:beta -- 26.3.0-beta.0` | **要**(起點是 develop 的穩定版) |
+| 之後的 beta | `npm run release:beta` | 不用 |
+| 切 rc / rc.N+1 | `npm run release:rc` | 不用 |
+| release 分支發正式版 | `npm run release:live` | **不用** |
+| hotfix 發正式版 | `npm run release:live -- 26.0.1` | **要**(起點是 main 的穩定版) |
+
+**release 分支發正式版為什麼不用帶?** semver 對 prerelease 遞增就是「落定」到那個版本,實測 `26.1.0-rc.1` 不帶版號直接算出 `26.1.0`,跟帶版號結果一樣。
+
+**hotfix 為什麼要帶?** 起點是穩定版,release-it 會改用 conventional-changelog 的 recommended bump——那是看 commit type 決定的:
+
+```
+hotfix 只有 fix commit  → 26.0.1   ✓
+hotfix 混了 feat commit → 26.1.0   ✗ 撞進 release/26.1 的版號空間
+```
+
+hotfix 理論上只該有 fix,但只要有人順手多塞一個小功能,版號就會跳 minor。帶版號等於把判斷從「commit 寫得對不對」變成「你說了算」。
 
 ### 版號來源是 `package.json`,不是 tag
 
