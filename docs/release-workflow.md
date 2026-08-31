@@ -456,7 +456,9 @@ module.exports = {
   },
   npm: { publish: false },
   gitlab: { release: true, releaseName: 'v${version}' },
-  hooks: { 'before:init': ['npm run lint', 'npm test'] },
+  // 發版不跑 lint / test——那些在 MR 的 CI 就擋過了,發版只負責版號與 tag
+  // 要在發版前再跑一次的話:hooks: { 'before:init': ['npm run lint', 'npm test'] }
+  hooks: {},
   plugins: {
     '@release-it/conventional-changelog': {
       // angular preset 會丟棄 refactor,見第 11 節
