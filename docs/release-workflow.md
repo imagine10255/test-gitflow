@@ -375,6 +375,65 @@ git push origin --delete hotfix/1.0.1
 
 > ⚠️ **不要把 live 的 bug 修在進行中的 release 分支上。** 修正會被綁在還沒上線的版本上——客戶驗收卡兩週,live 的 bug 就兩週不能修。除非那個版本明天就上線,否則一律走 hotfix。
 
+### 三個環境都被佔滿時的 hotfix
+
+大功能發佈時 release 測試會拉長好幾天,這期間 live 出問題就會遇到:
+
+```
+live         ← v26.1.0
+release 環境 ← v26.2.0-rc.0    客戶驗收中,可能還要好幾天
+qa 環境      ← v26.3.0-beta.0  QA 驗中
+```
+
+三個環境全滿,hotfix 發 beta 會蓋掉 QA、發 rc 會蓋掉客戶。**但 lab 是空的**——它不打 tag,不受「一個 tag 樣式對應一個環境」的約束。
+
+所以流程是**在 lab 驗過,直接發 live,跳過 beta/rc**:
+
+```bash
+# ① 從 main 開
+git switch -c hotfix/26.1.1 main
+git push -u origin hotfix/26.1.1
+git commit -m "fix(cart): crash when cart is empty (SG-3801)"
+
+# ② 把 test-lab 重置成 live 現況再併 hotfix
+#    這樣 lab 上跑的就是「live + 這個修正」,跟上線後狀態一致
+git switch test-lab
+git reset --hard main
+git merge --no-ff hotfix/26.1.1 -m "merge: hotfix 26.1.1 into test-lab"
+git push --force
+
+# ③ lab 驗過 → 直接發 live(不發 beta/rc,帶明確版號)
+git switch hotfix/26.1.1
+npm run release:live -- 26.1.1
+
+# ④ 回補 main → develop(兩段都零衝突)
+git switch main    && git merge --no-ff hotfix/26.1.1 -m "hotfix: v26.1.1" && git push
+git switch develop && git merge --no-ff main -m "merge: v26.1.1 back to develop" && git push
+
+# ⑤ 補進每一條還活著的 release 分支 ← 各撞一次 package.json 衝突,選新的
+git switch release/26.2 && git merge --no-ff develop -m "sync: hotfix 26.1.1"
+git checkout --ours package.json package-lock.json && git add -A && git merge --continue
+npm run release:rc                        # → 26.2.0-rc.1
+
+git switch release/26.3 && git merge --no-ff develop -m "sync: hotfix 26.1.1"
+git checkout --ours package.json package-lock.json && git add -A && git merge --continue
+npm run release:beta                      # → 26.3.0-beta.1
+
+git push origin --delete hotfix/26.1.1 && git branch -D hotfix/26.1.1
+```
+
+**實測結果**(演練跑過完整一輪):只產生 `v26.1.1` 一顆 tag,qa 和 release 環境完全沒被動到;`main` / `develop` 回補零衝突;兩條 release 分支各撞一次版號衝突,選新的即可;修正在三條線上都在,`git log develop..main` 為空。
+
+> **代價:`26.1.1` 沒有經過客戶驗收。** 但客戶正在驗 `26.2.0-rc`,而這個 hotfix 修的是他們現在線上就在遇到的問題,本來就沒有「先給他們驗」的餘裕。lab 驗過 + 修改範圍小,是可接受的取捨。
+
+> **⑤ 是最容易漏的一步。** 漏掉的話 `26.2.0` 或 `26.3.0` 上線會把剛修好的 bug 蓋回去。驗證:
+>
+> ```bash
+> git branch --contains $(git rev-parse main) | grep release/
+> ```
+>
+> 每一條進行中的 release 分支都要出現在輸出裡。
+
 ---
 
 ## 8. 指令速查
