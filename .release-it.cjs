@@ -17,9 +17,10 @@ module.exports = {
     release: true,
     releaseName: 'v${version}'
   },
-  hooks: {
-    'before:init': ['npm run lint --if-present', 'npm test --if-present']
-  },
+  // 發版不跑 lint / test——那些在 MR 的 CI 就擋過了,發版只負責版號與 tag。
+  // 若要在發版前再跑一次,改成:
+  //   hooks: { 'before:init': ['npm run lint', 'npm test'] }
+  hooks: {},
   plugins: {
     '@release-it/conventional-changelog': {
       // angular preset 會丟棄 refactor（見 conventional-changelog-angular/src/writer.js:37,
