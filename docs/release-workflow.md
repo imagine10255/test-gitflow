@@ -456,7 +456,9 @@ module.exports = {
   },
   npm: { publish: false },
   gitlab: { release: true, releaseName: 'v${version}' },
-  hooks: { 'before:init': ['npm run lint', 'npm test'] },
+  // 發版不跑 lint / test——那些在 MR 的 CI 就擋過了,發版只負責版號與 tag
+  // 要在發版前再跑一次的話:hooks: { 'before:init': ['npm run lint', 'npm test'] }
+  hooks: {},
   plugins: {
     '@release-it/conventional-changelog': {
       // angular preset 會丟棄 refactor,見第 11 節
@@ -585,6 +587,19 @@ git switch develop && git merge --no-ff main -m "merge: v1.0.0 back to develop" 
 git push origin --delete release/1.0
 git log develop..main --oneline                # 應為空
 ```
+
+> ⚠️ **版號要寫完整,包含 `-beta.0` 後綴。**
+>
+> 明確版號會**完全覆蓋** `--preRelease=beta`,release-it 不會幫你補後綴:
+>
+> ```
+> npm run release:beta -- 26.1.0-beta.0   → 26.1.0-beta.0   ✓
+> npm run release:beta -- 26.1.0          → 26.1.0          ✗ 正式版,直接上 live
+> ```
+>
+> 最危險的是第二種——指令叫 `release:beta`,發出來的卻是正式版。記法是**照抄分支名再補後綴**:`release/26.1` → `26.1.0-beta.0`。分支名兩碼,tag 三碼加後綴。
+>
+> 不確定就先看一眼:`npm run release:beta -- 26.1.0-beta.0 --dry-run`,確認輸出有 `-beta.0` 再拿掉 `--dry-run`。
 
 > **第一顆 beta 一律寫死版號,不要讓它自己算。**
 >
