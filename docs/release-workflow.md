@@ -461,6 +461,8 @@ module.exports = {
   hooks: {},
   plugins: {
     '@release-it/conventional-changelog': {
+      // 關掉「依 commit type 推薦版號」,讓 beta/rc 只遞增序號不跳號,見第 11 節
+      whatBump: false,
       // angular preset 會丟棄 refactor,見第 11 節
       preset: {
         name: 'conventionalcommits',
@@ -499,9 +501,9 @@ module.exports = {
 
 ```json
 {
-  "release:beta": "release-it --preRelease=beta",
-  "release:rc":   "release-it --preRelease=rc",
-  "release:live": "release-it"
+  "release:beta": "release-it --preRelease=beta --ci",
+  "release:rc":   "release-it --preRelease=rc --ci",
+  "release:live": "release-it --increment=release --ci"
 }
 ```
 
@@ -766,24 +768,59 @@ npx release-it --increment=prepatch --preReleaseId=beta --ci   # rc 退回 beta:
 
 一句話:**起點是 prerelease 就不用帶,起點是穩定版就要帶。**
 
-| 時機 | 指令 | 帶版號? |
+| 時機 | 指令 | 起點 | 帶版號? |
+|---|---|---|---|
+| release 分支第一顆 | `npm run release:beta -- 26.3.0-beta.0` | develop(穩定版) | **要** |
+| 之後的 beta | `npm run release:beta` | prerelease | 不用 |
+| 切 rc / rc.N+1 | `npm run release:rc` | prerelease | 不用 |
+| release 分支發正式版 | `npm run release:live` | rc(prerelease) | 不用 |
+| hotfix 發正式版 | `npm run release:live -- 26.1.2` | main(穩定版) | **要** |
+
+中間三步為什麼不用帶,見下面「可預測的版號遞增」。
+
+**兩端漏帶版號都是安全的失敗**,不會靜默發錯:
+
+```
+第一顆漏帶  → 算出的版號撞既有 tag,Git tag 階段失敗並自動回滾
+hotfix 漏帶 → No new version to release,什麼都不做(實測 HEAD、tag 數、工作區全都沒變)
+```
+
+### 可預測的版號遞增
+
+設定裡有兩處是為了讓版號**完全可預測**,不受 commit type 影響:
+
+**① `.release-it.cjs` 的 `whatBump: false`**
+
+不關的話,prerelease 遞增會依 commit type 跳號。實際案例:`package.json` 是 `26.1.0-beta.0`,跑 `npm run release:rc` 得到 **`26.1.1-rc.0`** 而不是預期的 `26.1.0-rc.0`。
+
+原因在 `@release-it/conventional-changelog/index.js:155-164`——起點是 prerelease 時,plugin 會:
+
+1. 找最後一個穩定 tag(例如 `26.0.0`)
+2. 算從那裡到 HEAD 的 recommended bump(只有 fix → `patch`)
+3. **比對兩者的該位數**:`semver.patch('26.0.0')` = 0 vs `semver.patch('26.1.0-beta.0')` = 0
+4. 相等 → 用 `prepatch`(patch +1);不相等 → 用 `prerelease`(只加序號)
+
+關掉之後 `releaseType` 永遠是 `null`,一律走 `prerelease`:
+
+| 起點 | 指令 | 結果 |
 |---|---|---|
-| release 分支第一顆 | `npm run release:beta -- 26.3.0-beta.0` | **要**(起點是 develop 的穩定版) |
-| 之後的 beta | `npm run release:beta` | 不用 |
-| 切 rc / rc.N+1 | `npm run release:rc` | 不用 |
-| release 分支發正式版 | `npm run release:live` | **不用** |
-| hotfix 發正式版 | `npm run release:live -- 26.0.1` | **要**(起點是 main 的穩定版) |
+| `26.5.0-beta.2` | `release:beta` | `26.5.0-beta.3`(序號 +1) |
+| `26.5.0-beta.2` | `release:rc` | `26.5.0-rc.0`(換 identifier,序號歸零) |
+| `26.5.0-rc.0` | `release:rc` | `26.5.0-rc.1`(序號 +1) |
 
-**release 分支發正式版為什麼不用帶?** semver 對 prerelease 遞增就是「落定」到那個版本,實測 `26.1.0-rc.1` 不帶版號直接算出 `26.1.0`,跟帶版號結果一樣。
+**前三碼在整條 release 分支的生命週期內固定不動。**
 
-**hotfix 為什麼要帶?** 起點是穩定版,release-it 會改用 conventional-changelog 的 recommended bump——那是看 commit type 決定的:
+**② `package.json` 的 `release:live` 用 `--increment=release`**
+
+`whatBump: false` 的副作用是 live 也算不出版號(回 `null` → `No new version to release`)。`--increment=release` 讓 semver 直接「落定」——移除 prerelease 後綴:
 
 ```
-hotfix 只有 fix commit  → 26.0.1   ✓
-hotfix 混了 feat commit → 26.1.0   ✗ 撞進 release/26.1 的版號空間
+semver.inc('26.2.0-rc.1', 'release') = 26.2.0
+semver.inc('26.2.0-beta.3', 'release') = 26.2.0
+semver.inc('26.1.1', 'release') = null      ← 穩定版沒有東西可落定
 ```
 
-hotfix 理論上只該有 fix,但只要有人順手多塞一個小功能,版號就會跳 minor。帶版號等於把判斷從「commit 寫得對不對」變成「你說了算」。
+最後一行就是 hotfix 要帶版號的原因:它的起點是 `main` 的穩定版,沒有 prerelease 後綴可以移除。
 
 ### 版號來源是 `package.json`,不是 tag
 
