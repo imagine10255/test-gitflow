@@ -588,6 +588,19 @@ git push origin --delete release/1.0
 git log develop..main --oneline                # 應為空
 ```
 
+> ⚠️ **版號要寫完整,包含 `-beta.0` 後綴。**
+>
+> 明確版號會**完全覆蓋** `--preRelease=beta`,release-it 不會幫你補後綴:
+>
+> ```
+> npm run release:beta -- 26.1.0-beta.0   → 26.1.0-beta.0   ✓
+> npm run release:beta -- 26.1.0          → 26.1.0          ✗ 正式版,直接上 live
+> ```
+>
+> 最危險的是第二種——指令叫 `release:beta`,發出來的卻是正式版。記法是**照抄分支名再補後綴**:`release/26.1` → `26.1.0-beta.0`。分支名兩碼,tag 三碼加後綴。
+>
+> 不確定就先看一眼:`npm run release:beta -- 26.1.0-beta.0 --dry-run`,確認輸出有 `-beta.0` 再拿掉 `--dry-run`。
+
 > **第一顆 beta 一律寫死版號,不要讓它自己算。**
 >
 > 照抄分支名就對了:`release/26.0` → `26.0.0-beta.0`。
