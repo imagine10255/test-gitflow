@@ -23,6 +23,13 @@ module.exports = {
   hooks: {},
   plugins: {
     '@release-it/conventional-changelog': {
+      // 關掉「依 commit type 推薦版號」。
+      // 開著的話 prerelease 遞增會跳號:例如 26.1.0-beta.0 跑 release:rc,若最後一個穩定 tag
+      // 與當前版號的 patch 位相同(見 index.js:155-164),會算成 26.1.1-rc.0 而不是 26.1.0-rc.0。
+      // 關掉後 beta/rc 保證只遞增序號,前三碼永遠不動。
+      // 配套:release:live 用 --increment=release 讓 semver 直接落定(見 package.json)。
+      whatBump: false,
+
       // angular preset 會丟棄 refactor（見 conventional-changelog-angular/src/writer.js:37,
       // refactor 的分支排在 `else if (discard) return undefined` 之後，只有帶 BREAKING CHANGE 才進得去）。
       // 改用 conventionalcommits 並自行指定要顯示的類型。
