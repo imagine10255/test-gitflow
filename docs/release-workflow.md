@@ -256,13 +256,14 @@ main ─────────────────────────
 進 rc 之後,`release/1.0` 的修正**只在自己這條線上循環**,不碰任何其他分支:
 
 ```bash
-git switch -c fix/xxx release/1.0        # 從 release/1.0 開(或直接在上面 commit)
-git commit -m "fix: ..."
+# 進 rc 後的 fix 從 release 分支開,分支名帶版號(見第 2 節)
+git switch -c fix/1.0/SG-3702 release/1.0
+git commit -m "fix(checkout): payment timeout (SG-3702)"
 
-git switch test-lab && git merge --no-ff fix/xxx && git push    # lab 驗
+git switch test-lab && git merge --no-ff fix/1.0/SG-3702 && git push    # lab 驗
 
-git switch release/1.0 && git merge --no-ff fix/xxx
-npm run release:rc                                              # → v1.0.0-rc.1
+git switch release/1.0 && git merge --no-ff fix/1.0/SG-3702
+npm run release:rc                                                      # → v1.0.0-rc.1
 ```
 
 **這時不碰 `main`、不碰 `develop`、也不碰 `release/1.1`。** 因為 `1.0.0` 還沒上線,照第 12 節都還沒到承認的時候。
@@ -338,6 +339,7 @@ hotfix/  ●──●──●────────┘         \
 
 ```bash
 git switch -c hotfix/1.0.1 main          # 從 main 開,不要從 v1.0.0 tag 開
+git push -u origin hotfix/1.0.1          # ← 要發版就需要 upstream(requireUpstream)
 git commit -m "fix: null crash on empty dataset"
 
 git switch test-lab && git merge --no-ff hotfix/1.0.1 && git push   # → lab 自己驗
@@ -564,13 +566,17 @@ git merge --no-ff develop
 npm run release:beta -- 26.0.0-beta.0          # 第一顆:照抄分支名寫死版號
 # ← 這裡不回補 develop,見第 12 節
 
-# ── 凍結期:修 bug ──
-git switch -c fix/dropdown release/1.0
-git commit -m "fix: filter dropdown misaligned"
+# ── 凍結期:修 bug(還在 beta 階段,所以從 develop 開)──
+git switch -c fix/SG-3689 develop
+git commit -m "fix(checkout): filter dropdown misaligned (SG-3689)"
 
-git switch test-lab && git merge --no-ff fix/dropdown && git push   # lab 驗
+git switch test-lab && git merge --no-ff fix/SG-3689 && git push    # lab 驗
 
-git switch release/1.0 && git merge --no-ff fix/dropdown
+git switch develop && git merge --no-ff fix/SG-3689 && git push     # 走 MR 進 develop
+
+git switch release/1.0
+git log release/1.0..develop --oneline         # 掃一眼要帶什麼進去
+git merge --no-ff develop
 npm run release:beta                           # → v1.0.0-beta.1
 
 # ── 隔週三 AM:發 rc ──
