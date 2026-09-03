@@ -1,5 +1,34 @@
 # Changelog
 
+## [26.4.0](https://github.com/imagine10255/test-gitflow/compare/v26.4.0-rc.0...v26.4.0) (2026-09-03)
+
+### Features
+
+* xxx3 ([761aa46](https://github.com/imagine10255/test-gitflow/commit/761aa46cf67b5704bdbd659ed7a0a3b22df09e0b))
+
+### Bug Fixes
+
+* xxx3 ([8954f9f](https://github.com/imagine10255/test-gitflow/commit/8954f9f279c3f2927dd8772eefdadb19d07463fa))
+
+## [26.4.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.4.0-beta.0...v26.4.0-rc.0) (2026-09-03)
+
+### Features
+
+* xxx2 ([2bbdfaa](https://github.com/imagine10255/test-gitflow/commit/2bbdfaa2c85fb12ac82cdce29f3df556c7d43ba1))
+
+## [26.4.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v26.1.1...v26.4.0-beta.0) (2026-09-03)
+
+### Features
+
+* **notify:** add notification center ([f1ca3a3](https://github.com/imagine10255/test-gitflow/commit/f1ca3a39f07a6c5b04b2db4d9a04e5437024cec2))
+* **notify:** per-channel preferences ([b01992b](https://github.com/imagine10255/test-gitflow/commit/b01992bff4411f9ed2ee904e2c9b6de267f5e6c3))
+* **search:** add advanced filters ([f6e98f6](https://github.com/imagine10255/test-gitflow/commit/f6e98f650f75dcd68dbdabf28479da6408404065))
+* xxx ([31ca591](https://github.com/imagine10255/test-gitflow/commit/31ca5914efee416f9c3ef07f83243c0e1a3a982e))
+
+### Code Refactoring
+
+* **notify:** extract delivery queue ([3ceac28](https://github.com/imagine10255/test-gitflow/commit/3ceac289a0400c7cf3b64ad5ba02175d68fde868))
+
 ## [26.1.1](https://github.com/imagine10255/test-gitflow/compare/v26.1.0...v26.1.1) (2026-08-30)
 
 ### Bug Fixes
