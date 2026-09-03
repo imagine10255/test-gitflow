@@ -1,6 +1,6 @@
 {
   "name": "test-gitflow",
-  "version": "26.1.1",
+  "version": "26.4.0",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -9,7 +9,7 @@
   "scripts": {
     "release:beta": "release-it --preRelease=beta --ci",
     "release:rc": "release-it --preRelease=rc --ci",
-    "release:live": "release-it --ci"
+    "release:live": "release-it --increment=release --ci"
   },
   "repository": {
     "type": "git",

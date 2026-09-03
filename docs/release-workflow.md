@@ -256,13 +256,14 @@ main ─────────────────────────
 進 rc 之後,`release/1.0` 的修正**只在自己這條線上循環**,不碰任何其他分支:
 
 ```bash
-git switch -c fix/xxx release/1.0        # 從 release/1.0 開(或直接在上面 commit)
-git commit -m "fix: ..."
+# 進 rc 後的 fix 從 release 分支開,分支名帶版號(見第 2 節)
+git switch -c fix/1.0/SG-3702 release/1.0
+git commit -m "fix(checkout): payment timeout (SG-3702)"
 
-git switch test-lab && git merge --no-ff fix/xxx && git push    # lab 驗
+git switch test-lab && git merge --no-ff fix/1.0/SG-3702 && git push    # lab 驗
 
-git switch release/1.0 && git merge --no-ff fix/xxx
-npm run release:rc                                              # → v1.0.0-rc.1
+git switch release/1.0 && git merge --no-ff fix/1.0/SG-3702
+npm run release:rc                                                      # → v1.0.0-rc.1
 ```
 
 **這時不碰 `main`、不碰 `develop`、也不碰 `release/1.1`。** 因為 `1.0.0` 還沒上線,照第 12 節都還沒到承認的時候。
@@ -338,6 +339,7 @@ hotfix/  ●──●──●────────┘         \
 
 ```bash
 git switch -c hotfix/1.0.1 main          # 從 main 開,不要從 v1.0.0 tag 開
+git push -u origin hotfix/1.0.1          # ← 要發版就需要 upstream(requireUpstream)
 git commit -m "fix: null crash on empty dataset"
 
 git switch test-lab && git merge --no-ff hotfix/1.0.1 && git push   # → lab 自己驗
@@ -375,6 +377,65 @@ git push origin --delete hotfix/1.0.1
 
 > ⚠️ **不要把 live 的 bug 修在進行中的 release 分支上。** 修正會被綁在還沒上線的版本上——客戶驗收卡兩週,live 的 bug 就兩週不能修。除非那個版本明天就上線,否則一律走 hotfix。
 
+### 三個環境都被佔滿時的 hotfix
+
+大功能發佈時 release 測試會拉長好幾天,這期間 live 出問題就會遇到:
+
+```
+live         ← v26.1.0
+release 環境 ← v26.2.0-rc.0    客戶驗收中,可能還要好幾天
+qa 環境      ← v26.3.0-beta.0  QA 驗中
+```
+
+三個環境全滿,hotfix 發 beta 會蓋掉 QA、發 rc 會蓋掉客戶。**但 lab 是空的**——它不打 tag,不受「一個 tag 樣式對應一個環境」的約束。
+
+所以流程是**在 lab 驗過,直接發 live,跳過 beta/rc**:
+
+```bash
+# ① 從 main 開
+git switch -c hotfix/26.1.1 main
+git push -u origin hotfix/26.1.1
+git commit -m "fix(cart): crash when cart is empty (SG-3801)"
+
+# ② 把 test-lab 重置成 live 現況再併 hotfix
+#    這樣 lab 上跑的就是「live + 這個修正」,跟上線後狀態一致
+git switch test-lab
+git reset --hard main
+git merge --no-ff hotfix/26.1.1 -m "merge: hotfix 26.1.1 into test-lab"
+git push --force
+
+# ③ lab 驗過 → 直接發 live(不發 beta/rc,帶明確版號)
+git switch hotfix/26.1.1
+npm run release:live -- 26.1.1
+
+# ④ 回補 main → develop(兩段都零衝突)
+git switch main    && git merge --no-ff hotfix/26.1.1 -m "hotfix: v26.1.1" && git push
+git switch develop && git merge --no-ff main -m "merge: v26.1.1 back to develop" && git push
+
+# ⑤ 補進每一條還活著的 release 分支 ← 各撞一次 package.json 衝突,選新的
+git switch release/26.2 && git merge --no-ff develop -m "sync: hotfix 26.1.1"
+git checkout --ours package.json package-lock.json && git add -A && git merge --continue
+npm run release:rc                        # → 26.2.0-rc.1
+
+git switch release/26.3 && git merge --no-ff develop -m "sync: hotfix 26.1.1"
+git checkout --ours package.json package-lock.json && git add -A && git merge --continue
+npm run release:beta                      # → 26.3.0-beta.1
+
+git push origin --delete hotfix/26.1.1 && git branch -D hotfix/26.1.1
+```
+
+**實測結果**(演練跑過完整一輪):只產生 `v26.1.1` 一顆 tag,qa 和 release 環境完全沒被動到;`main` / `develop` 回補零衝突;兩條 release 分支各撞一次版號衝突,選新的即可;修正在三條線上都在,`git log develop..main` 為空。
+
+> **代價:`26.1.1` 沒有經過客戶驗收。** 但客戶正在驗 `26.2.0-rc`,而這個 hotfix 修的是他們現在線上就在遇到的問題,本來就沒有「先給他們驗」的餘裕。lab 驗過 + 修改範圍小,是可接受的取捨。
+
+> **⑤ 是最容易漏的一步。** 漏掉的話 `26.2.0` 或 `26.3.0` 上線會把剛修好的 bug 蓋回去。驗證:
+>
+> ```bash
+> git branch --contains $(git rev-parse main) | grep release/
+> ```
+>
+> 每一條進行中的 release 分支都要出現在輸出裡。
+
 ---
 
 ## 8. 指令速查
@@ -397,9 +458,13 @@ module.exports = {
   },
   npm: { publish: false },
   gitlab: { release: true, releaseName: 'v${version}' },
-  hooks: { 'before:init': ['npm run lint', 'npm test'] },
+  // 發版不跑 lint / test——那些在 MR 的 CI 就擋過了,發版只負責版號與 tag
+  // 要在發版前再跑一次的話:hooks: { 'before:init': ['npm run lint', 'npm test'] }
+  hooks: {},
   plugins: {
     '@release-it/conventional-changelog': {
+      // 關掉「依 commit type 推薦版號」,讓 beta/rc 只遞增序號不跳號,見第 11 節
+      whatBump: false,
       // angular preset 會丟棄 refactor,見第 11 節
       preset: {
         name: 'conventionalcommits',
@@ -438,9 +503,9 @@ module.exports = {
 
 ```json
 {
-  "release:beta": "release-it --preRelease=beta",
-  "release:rc":   "release-it --preRelease=rc",
-  "release:live": "release-it"
+  "release:beta": "release-it --preRelease=beta --ci",
+  "release:rc":   "release-it --preRelease=rc --ci",
+  "release:live": "release-it --increment=release --ci"
 }
 ```
 
@@ -501,13 +566,17 @@ git merge --no-ff develop
 npm run release:beta -- 26.0.0-beta.0          # 第一顆:照抄分支名寫死版號
 # ← 這裡不回補 develop,見第 12 節
 
-# ── 凍結期:修 bug ──
-git switch -c fix/dropdown release/1.0
-git commit -m "fix: filter dropdown misaligned"
+# ── 凍結期:修 bug(還在 beta 階段,所以從 develop 開)──
+git switch -c fix/SG-3689 develop
+git commit -m "fix(checkout): filter dropdown misaligned (SG-3689)"
 
-git switch test-lab && git merge --no-ff fix/dropdown && git push   # lab 驗
+git switch test-lab && git merge --no-ff fix/SG-3689 && git push    # lab 驗
 
-git switch release/1.0 && git merge --no-ff fix/dropdown
+git switch develop && git merge --no-ff fix/SG-3689 && git push     # 走 MR 進 develop
+
+git switch release/1.0
+git log release/1.0..develop --oneline         # 掃一眼要帶什麼進去
+git merge --no-ff develop
 npm run release:beta                           # → v1.0.0-beta.1
 
 # ── 隔週三 AM:發 rc ──
@@ -526,6 +595,19 @@ git switch develop && git merge --no-ff main -m "merge: v1.0.0 back to develop" 
 git push origin --delete release/1.0
 git log develop..main --oneline                # 應為空
 ```
+
+> ⚠️ **版號要寫完整,包含 `-beta.0` 後綴。**
+>
+> 明確版號會**完全覆蓋** `--preRelease=beta`,release-it 不會幫你補後綴:
+>
+> ```
+> npm run release:beta -- 26.1.0-beta.0   → 26.1.0-beta.0   ✓
+> npm run release:beta -- 26.1.0          → 26.1.0          ✗ 正式版,直接上 live
+> ```
+>
+> 最危險的是第二種——指令叫 `release:beta`,發出來的卻是正式版。記法是**照抄分支名再補後綴**:`release/26.1` → `26.1.0-beta.0`。分支名兩碼,tag 三碼加後綴。
+>
+> 不確定就先看一眼:`npm run release:beta -- 26.1.0-beta.0 --dry-run`,確認輸出有 `-beta.0` 再拿掉 `--dry-run`。
 
 > **第一顆 beta 一律寫死版號,不要讓它自己算。**
 >
@@ -692,24 +774,59 @@ npx release-it --increment=prepatch --preReleaseId=beta --ci   # rc 退回 beta:
 
 一句話:**起點是 prerelease 就不用帶,起點是穩定版就要帶。**
 
-| 時機 | 指令 | 帶版號? |
+| 時機 | 指令 | 起點 | 帶版號? |
+|---|---|---|---|
+| release 分支第一顆 | `npm run release:beta -- 26.3.0-beta.0` | develop(穩定版) | **要** |
+| 之後的 beta | `npm run release:beta` | prerelease | 不用 |
+| 切 rc / rc.N+1 | `npm run release:rc` | prerelease | 不用 |
+| release 分支發正式版 | `npm run release:live` | rc(prerelease) | 不用 |
+| hotfix 發正式版 | `npm run release:live -- 26.1.2` | main(穩定版) | **要** |
+
+中間三步為什麼不用帶,見下面「可預測的版號遞增」。
+
+**兩端漏帶版號都是安全的失敗**,不會靜默發錯:
+
+```
+第一顆漏帶  → 算出的版號撞既有 tag,Git tag 階段失敗並自動回滾
+hotfix 漏帶 → No new version to release,什麼都不做(實測 HEAD、tag 數、工作區全都沒變)
+```
+
+### 可預測的版號遞增
+
+設定裡有兩處是為了讓版號**完全可預測**,不受 commit type 影響:
+
+**① `.release-it.cjs` 的 `whatBump: false`**
+
+不關的話,prerelease 遞增會依 commit type 跳號。實際案例:`package.json` 是 `26.1.0-beta.0`,跑 `npm run release:rc` 得到 **`26.1.1-rc.0`** 而不是預期的 `26.1.0-rc.0`。
+
+原因在 `@release-it/conventional-changelog/index.js:155-164`——起點是 prerelease 時,plugin 會:
+
+1. 找最後一個穩定 tag(例如 `26.0.0`)
+2. 算從那裡到 HEAD 的 recommended bump(只有 fix → `patch`)
+3. **比對兩者的該位數**:`semver.patch('26.0.0')` = 0 vs `semver.patch('26.1.0-beta.0')` = 0
+4. 相等 → 用 `prepatch`(patch +1);不相等 → 用 `prerelease`(只加序號)
+
+關掉之後 `releaseType` 永遠是 `null`,一律走 `prerelease`:
+
+| 起點 | 指令 | 結果 |
 |---|---|---|
-| release 分支第一顆 | `npm run release:beta -- 26.3.0-beta.0` | **要**(起點是 develop 的穩定版) |
-| 之後的 beta | `npm run release:beta` | 不用 |
-| 切 rc / rc.N+1 | `npm run release:rc` | 不用 |
-| release 分支發正式版 | `npm run release:live` | **不用** |
-| hotfix 發正式版 | `npm run release:live -- 26.0.1` | **要**(起點是 main 的穩定版) |
+| `26.5.0-beta.2` | `release:beta` | `26.5.0-beta.3`(序號 +1) |
+| `26.5.0-beta.2` | `release:rc` | `26.5.0-rc.0`(換 identifier,序號歸零) |
+| `26.5.0-rc.0` | `release:rc` | `26.5.0-rc.1`(序號 +1) |
 
-**release 分支發正式版為什麼不用帶?** semver 對 prerelease 遞增就是「落定」到那個版本,實測 `26.1.0-rc.1` 不帶版號直接算出 `26.1.0`,跟帶版號結果一樣。
+**前三碼在整條 release 分支的生命週期內固定不動。**
 
-**hotfix 為什麼要帶?** 起點是穩定版,release-it 會改用 conventional-changelog 的 recommended bump——那是看 commit type 決定的:
+**② `package.json` 的 `release:live` 用 `--increment=release`**
+
+`whatBump: false` 的副作用是 live 也算不出版號(回 `null` → `No new version to release`)。`--increment=release` 讓 semver 直接「落定」——移除 prerelease 後綴:
 
 ```
-hotfix 只有 fix commit  → 26.0.1   ✓
-hotfix 混了 feat commit → 26.1.0   ✗ 撞進 release/26.1 的版號空間
+semver.inc('26.2.0-rc.1', 'release') = 26.2.0
+semver.inc('26.2.0-beta.3', 'release') = 26.2.0
+semver.inc('26.1.1', 'release') = null      ← 穩定版沒有東西可落定
 ```
 
-hotfix 理論上只該有 fix,但只要有人順手多塞一個小功能,版號就會跳 minor。帶版號等於把判斷從「commit 寫得對不對」變成「你說了算」。
+最後一行就是 hotfix 要帶版號的原因:它的起點是 `main` 的穩定版,沒有 prerelease 後綴可以移除。
 
 ### 版號來源是 `package.json`,不是 tag
 
