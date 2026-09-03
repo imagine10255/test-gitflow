@@ -1,5 +1,7 @@
 # Changelog
 
+## [26.5.0-beta.1](https://github.com/imagine10255/test-gitflow/compare/v26.5.0-beta.0...v26.5.0-beta.1) (2026-09-03)
+
 ## [26.5.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v26.4.0...v26.5.0-beta.0) (2026-09-03)
 
 ## [26.4.0](https://github.com/imagine10255/test-gitflow/compare/v26.4.0-rc.0...v26.4.0) (2026-09-03)
