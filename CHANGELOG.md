@@ -1,5 +1,11 @@
 # Changelog
 
+## [26.4.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.4.0-beta.0...v26.4.0-rc.0) (2026-09-03)
+
+### Features
+
+* xxx2 ([2bbdfaa](https://github.com/imagine10255/test-gitflow/commit/2bbdfaa2c85fb12ac82cdce29f3df556c7d43ba1))
+
 ## [26.4.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v26.1.1...v26.4.0-beta.0) (2026-09-03)
 
 ### Features
