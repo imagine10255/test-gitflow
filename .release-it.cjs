@@ -26,6 +26,10 @@ module.exports = {
       // 配套:release:live 用 --increment=release 讓 semver 直接落定(見 package.json)。
       whatBump: false,
 
+      // 不解析 commit 裡的 issue 編號(預設會把 #NAS-2821 這類字串轉成
+      // 「closes [#NAS-2821](.../issues/NAS-2821)」,而那是 GitLab issue 網址,對外部票號是壞連結)。
+      parserOpts: { issuePrefixes: ['__none__'] },
+
       // angular preset 會丟棄 refactor（見 conventional-changelog-angular/src/writer.js:37,
       // refactor 的分支排在 `else if (discard) return undefined` 之後，只有帶 BREAKING CHANGE 才進得去）。
       // 改用 conventionalcommits 並自行指定要顯示的類型。
