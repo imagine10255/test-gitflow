@@ -465,6 +465,9 @@ module.exports = {
     '@release-it/conventional-changelog': {
       // 關掉「依 commit type 推薦版號」,讓 beta/rc 只遞增序號不跳號,見第 11 節
       whatBump: false,
+      // 不把 commit 裡的 #NAS-2821 轉成「closes [#NAS-2821](.../issues/...)」
+      // (模板寫死 closes 字樣,網址是 GitLab issue 路徑,對外部票號是壞連結)
+      parserOpts: { issuePrefixes: ['__none__'] },
       // angular preset 會丟棄 refactor,見第 11 節
       preset: {
         name: 'conventionalcommits',
