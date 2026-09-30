@@ -54,7 +54,7 @@ release/26.1 → beta   → 佔 qa 環境(QA)
 | `fix/*` | `develop` | `develop` | merge 後砍 |
 | `fix/26.0/*` | `release/26.0`(**進 rc 後才用**) | 同一條 `release/26.0` | merge 後砍 |
 | `release/1.0` | `develop` | `main` → 再由 `main` → `develop` | 上線觀察期過後砍 |
-| `hotfix/1.0.1` | `main` | `main` → 再由 `main` → `develop` → 進行中的 `release/*` | 上線後砍 |
+| `hotfix/1.0.1` | `main` | `main` → 再由 `main` → `develop` → 進行中的 `release/*`(beta 從 develop 補、**rc 從 main 補**) | 上線後砍 |
 
 > **注意 `release/*` 和 `hotfix/*` 都是先進 `main`,再由 `main` 往下流到 `develop`**,不要從 release 分支直接 merge 進 develop。理由見第 12 節。
 >
@@ -360,9 +360,31 @@ npm run release:live -- 1.0.1             # → v1.0.1,在 hotfix 分支上發
 
 git switch main    && git merge --no-ff hotfix/1.0.1 -m "hotfix: v1.0.1" && git push
 git switch develop && git merge --no-ff main -m "merge back" && git push
-git switch release/1.1 && git merge --no-ff develop        # 最容易漏
+git switch release/1.1 && git merge --no-ff develop        # 最容易漏(1.1 還在 beta)
+# 若 release/1.1 已進 rc,改成 git merge --no-ff main,見下方警語
 git push origin --delete hotfix/1.0.1
 ```
+
+> ⚠️ **hotfix 補進已進 rc 的 release 分支,要從 `main` 補,不能從 `develop`。**
+>
+> 演練時踩到:`release/26.2` 在 rc、`release/26.3` 在 beta,hotfix 經 develop 補進 26.2,結果 develop 上 26.3 的 `feat(search)` 一起被帶進 26.2——**下一版的功能夾帶進正在客戶驗收的版本**,沒有任何警告。
+>
+> ```
+> feat(search)(26.3) → develop → sync: hotfix → release/26.2   ✗
+> ```
+>
+> `main` 此時只有「live + hotfix」,沒有下一版的東西,從它補最乾淨。規則跟 fix 一致:**進 rc 就不再碰 develop**。
+>
+> | release 分支狀態 | hotfix 從哪補進來 |
+> |---|---|
+> | 還在 beta | `develop` |
+> | 已進 rc | `main` |
+>
+> 補完用這行確認有沒有夾帶(應該只看到 hotfix 的 commit):
+>
+> ```bash
+> git log ORIG_HEAD..HEAD --oneline --no-merges --invert-grep --grep='chore(release)'   # merge 完立刻跑
+> ```
 
 > **一定要從 `main` 開,不要從 tag 開。** 如果 `main` 已經是 `1.0.1`,從 `v1.0.0` 開分支做 `1.0.2` 會把 `1.0.1` 修好的 bug 帶回去。
 
@@ -421,7 +443,8 @@ git switch main    && git merge --no-ff hotfix/26.1.1 -m "hotfix: v26.1.1" && gi
 git switch develop && git merge --no-ff main -m "merge: v26.1.1 back to develop" && git push
 
 # ⑤ 補進每一條還活著的 release 分支 ← 各撞一次 package.json 衝突,選新的
-git switch release/26.2 && git merge --no-ff develop -m "sync: hotfix 26.1.1"
+#    已進 rc 的從 main 補,還在 beta 的從 develop 補(見下方警語)
+git switch release/26.2 && git merge --no-ff main -m "sync: hotfix 26.1.1"
 git checkout --ours package.json package-lock.json && git add -A && git merge --continue
 npm run release:rc                        # → 26.2.0-rc.1
 
