@@ -289,6 +289,14 @@ npm run release:beta                                        # → v1.1.0-beta.N+
 >
 > 單一 release 分支時沒這個問題,走 develop 中轉是可以的。
 
+> **第二條分支第一顆 beta 的 CHANGELOG 會包含前一條的內容,這是對的,不要修。**
+>
+> `release/26.11` 從 develop 開出來時,26.10 的功能已經在 develop 上(它們是走 develop 進去的),但 26.10 的 tag 打在 `release/26.10` 上,從 develop 往回找不到。所以 `26.11.0-beta.0` 的起點會退回上一個 live 版,那一段會列出 26.10 + 26.11 的全部內容。
+>
+> 看起來重複,但發這顆的當下還不知道 26.10 會上線還是被 cancel。**如果 26.10 被 cancel,它的功能仍在 develop 上、會隨 26.11 上線**——這時那一大段剛好是正確的紀錄。若改用 `git merge-base` 之類的方式裁掉,cancel 時那些功能就會從 CHANGELOG 上消失。
+>
+> 只影響這一顆:之後的 beta 起點是 `v26.11.0-beta.0`,只列增量。
+
 ⚠️ **第二條 release 分支的第一顆 beta 必須明確指定版號。**
 
 因為照第 12 節「上線才承認」,`release/1.0` 沒上線前 `develop` 還停在**上一個正式版**(例如 `0.9.0`)。從那裡起跳算 minor 只會得到 `1.0.0-beta.0`——正是 `release/1.0` 已經佔用的版號。
