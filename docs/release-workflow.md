@@ -620,15 +620,29 @@ npm run release:rc                             # → v1.0.0-rc.0
 # ── rc 過:上 live ──
 git log release/1.0..main --oneline            # ① 先確認 main 沒有新 hotfix 沒同步進來
 npm run release:live                           # ② 在 release 分支上發,不用帶版號
+# ↑ 發完自動收尾:release/1.0 → main → develop → 推送 → 刪分支(見下方說明)
 
-git switch main    && git merge --no-ff release/1.0 -m "release: v1.0.0" && git push
-git switch develop && git merge --no-ff main -m "merge: v1.0.0 back to develop" && git push
-# ↑ develop 從 main 合併,不從 release/1.0 合併,見第 12 節
-
-# ── 觀察一天沒事:砍分支 ──
-git push origin --delete release/1.0
 git log develop..main --oneline                # 應為空
+
+# ── 並行時:同步到下一條 release 分支(手動)──
+git switch release/1.1 && git merge --no-ff develop   # 還在 beta 從 develop;已進 rc 從 main
 ```
+
+### 正式版自動收尾
+
+`.release-it.cjs` 的 `after:release` hook 會在**正式版**發完後執行 `scripts/release-finish.cjs`,做的事等同 `git flow finish` 但不打 tag(tag 已由 release-it 打好),也不需要安裝 git-flow:
+
+```
+release/* 或 hotfix/*  →  main  →  develop(從 main 合併)  →  推送  →  刪除分支
+```
+
+- **beta / rc 會自動略過**,只有正式版才收尾
+- **合併衝突時安全停下**:還原該次合併、切回原分支、印出接手指令。這時 tag 已經推上去了,照提示手動完成剩下步驟即可
+- **其他進行中的 release 分支不會自動同步**,要不要補、從 develop 還是 main 補,要看當下狀態,留給人判斷
+
+實測(在隔離的 repo 裡):正式版收尾後 `develop..main` 為空、分支本地與遠端都刪除;hotfix 同樣適用;衝突情境不會卡在合併中。
+
+> 不要再用 Fork / git-flow 的 finish 按鈕——它會另外打一顆沒有 `v` 的 tag,而且把 release 分支直接併進 develop,讓 `git log develop..main` 一直有殘留。
 
 > ⚠️ **版號要寫完整,包含 `-beta.0` 後綴。**
 >
