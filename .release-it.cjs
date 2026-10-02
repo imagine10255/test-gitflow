@@ -16,7 +16,11 @@ module.exports = {
   // 發版不跑 lint / test——那些在 MR 的 CI 就擋過了,發版只負責版號與 tag。
   // 若要在發版前再跑一次,改成:
   //   hooks: { 'before:init': ['npm run lint', 'npm test'] }
-  hooks: {},
+  hooks: {
+    // 正式版發完自動收尾(release/hotfix → main → develop → 刪分支),預發版會自動略過。
+    // 等同 git flow finish 但不打 tag,不需要安裝 git-flow。見 scripts/release-finish.cjs
+    'after:release': 'node scripts/release-finish.cjs ${version}'
+  },
   plugins: {
     '@release-it/conventional-changelog': {
       // 關掉「依 commit type 推薦版號」。
