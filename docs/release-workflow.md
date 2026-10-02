@@ -639,14 +639,27 @@ git switch release/1.1 && git merge --no-ff develop   # 還在 beta 從 develop;
 `.release-it.cjs` 的 `after:release` hook 會在**正式版**發完後執行 `scripts/release-finish.cjs`,做的事等同 `git flow finish` 但不打 tag(tag 已由 release-it 打好),也不需要安裝 git-flow:
 
 ```
-release/* 或 hotfix/*  →  main  →  develop(從 main 合併)  →  推送  →  刪除分支
+① release/* 或 hotfix/*  →  main  →  develop(從 main 合併)  →  推送  →  刪除分支
+② 同步到其他進行中的 release 分支:
+     版號是 rc   → 從 main 補(不夾帶下一版的功能)
+     版號是 beta → 從 develop 補
 ```
 
 - **beta / rc 會自動略過**,只有正式版才收尾
-- **合併衝突時安全停下**:還原該次合併、切回原分支、印出接手指令。這時 tag 已經推上去了,照提示手動完成剩下步驟即可
-- **其他進行中的 release 分支不會自動同步**,要不要補、從 develop 還是 main 補,要看當下狀態,留給人判斷
+- **② 的 merge 訊息**:hotfix 寫 `fix: 併入 hotfix vX.Y.Z`(會進那條線下一顆的 CHANGELOG);release 上線寫 `chore: 併入 vX.Y.Z`(不進 CHANGELOG,上一版的段落已經寫過)
+- **② 的版號衝突自動處理**:`package.json` / `package-lock.json` 保留 release 分支的版號,`CHANGELOG.md` 兩邊都保留
+- **其他檔案衝突**:① 中止並印出接手指令;② 跳過那條分支、不動它,最後列出要手動同步的分支和指令。這時 tag 已經推上去了,照提示接手即可
 
-實測(在隔離的 repo 裡):正式版收尾後 `develop..main` 為空、分支本地與遠端都刪除;hotfix 同樣適用;衝突情境不會卡在合併中。
+hook 的輸出預設會被 release-it 收起來,要看完整過程加 `--verbose`。
+
+實測(在隔離的 repo 裡,26.10 在 rc、26.11 在 beta):
+
+| 情境 | 結果 |
+|---|---|
+| hotfix 上線 | 兩條都補到;**rc 那條沒有夾帶 26.11 的功能**;兩條下一顆的 CHANGELOG 都只多一行「併入 hotfix」 |
+| 26.10 正式上線 | 26.10 分支刪除;26.11 補到,版號維持 `26.11.0-beta.0`,`chore:` 訊息不進 CHANGELOG |
+| ① 衝突 | 安全停下,沒有卡在合併中 |
+| ② 衝突(rc 修正與 hotfix 改到同一檔) | main / develop 照常收尾,衝突那條被跳過、完全沒動到,印出正確的接手指令(rc 所以從 main 補) |
 
 > 不要再用 Fork / git-flow 的 finish 按鈕——它會另外打一顆沒有 `v` 的 tag,而且把 release 分支直接併進 develop,讓 `git log develop..main` 一直有殘留。
 
