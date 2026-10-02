@@ -360,7 +360,7 @@ npm run release:live -- 1.0.1             # → v1.0.1,在 hotfix 分支上發
 
 git switch main    && git merge --no-ff hotfix/1.0.1 -m "hotfix: v1.0.1" && git push
 git switch develop && git merge --no-ff main -m "merge back" && git push
-git switch release/1.1 && git merge --no-ff develop        # 最容易漏(1.1 還在 beta)
+git switch release/1.1 && git merge --no-ff develop -m "fix: 併入 hotfix v1.0.1"   # 最容易漏(1.1 還在 beta)
 # 若 release/1.1 已進 rc,改成 git merge --no-ff main,見下方警語
 git push origin --delete hotfix/1.0.1
 ```
@@ -444,11 +444,11 @@ git switch develop && git merge --no-ff main -m "merge: v26.1.1 back to develop"
 
 # ⑤ 補進每一條還活著的 release 分支 ← 各撞一次 package.json 衝突,選新的
 #    已進 rc 的從 main 補,還在 beta 的從 develop 補(見下方警語)
-git switch release/26.2 && git merge --no-ff main -m "sync: hotfix 26.1.1"
+git switch release/26.2 && git merge --no-ff main -m "fix: 併入 hotfix v26.1.1"
 git checkout --ours package.json package-lock.json && git add -A && git merge --continue
 npm run release:rc                        # → 26.2.0-rc.1
 
-git switch release/26.3 && git merge --no-ff develop -m "sync: hotfix 26.1.1"
+git switch release/26.3 && git merge --no-ff develop -m "fix: 併入 hotfix v26.1.1"
 git checkout --ours package.json package-lock.json && git add -A && git merge --continue
 npm run release:beta                      # → 26.3.0-beta.1
 
@@ -458,6 +458,10 @@ git push origin --delete hotfix/26.1.1 && git branch -D hotfix/26.1.1
 **實測結果**(演練跑過完整一輪):只產生 `v26.1.1` 一顆 tag,qa 和 release 環境完全沒被動到;`main` / `develop` 回補零衝突;兩條 release 分支各撞一次版號衝突,選新的即可;修正在三條線上都在,`git log develop..main` 為空。
 
 > **代價:`26.1.1` 沒有經過客戶驗收。** 但客戶正在驗 `26.2.0-rc`,而這個 hotfix 修的是他們現在線上就在遇到的問題,本來就沒有「先給他們驗」的餘裕。lab 驗過 + 修改範圍小,是可接受的取捨。
+
+> **同步的 merge 訊息用 `fix: 併入 hotfix vX.Y.Z`。** 設定裡開了 `merges: null`,conventional 格式的 merge commit 會進 CHANGELOG,所以這個 release 線的下一顆 beta/rc 會多一行「併入 hotfix v26.1.1」,QA 看得出這版包含了哪個 hotfix。
+>
+> 其他 merge(`sync from develop`、`Merge branch 'xxx'`、收尾 script 產生的 `release:` / `merge:` / `hotfix:`)都不是設定裡列出的 type,照樣不會出現。**唯一要避免的是 MR 合併訊息寫成 `feat:` / `fix:`**——那樣 merge commit 會跟裡面的 commit 重複出現。
 
 > **⑤ 是最容易漏的一步。** 漏掉的話 `26.2.0` 或 `26.3.0` 上線會把剛修好的 bug 蓋回去。驗證:
 >
@@ -496,6 +500,8 @@ module.exports = {
     '@release-it/conventional-changelog': {
       // 關掉「依 commit type 推薦版號」,讓 beta/rc 只遞增序號不跳號,見第 11 節
       whatBump: false,
+      // merge commit 也能進 CHANGELOG(預設 --no-merges),只有 conventional 格式的會出現,見第 7 節
+      gitRawCommitsOpts: { merges: null },
       // 不把 commit 裡的 #NAS-2821 轉成「closes [#NAS-2821](.../issues/...)」
       // (模板寫死 closes 字樣,網址是 GitLab issue 路徑,對外部票號是壞連結)
       parserOpts: { issuePrefixes: ['__none__'] },

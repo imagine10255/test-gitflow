@@ -30,6 +30,11 @@ module.exports = {
       // 配套:release:live 用 --increment=release 讓 semver 直接落定(見 package.json)。
       whatBump: false,
 
+      // 讓 merge commit 也能進 CHANGELOG。conventional-changelog 預設 merges: false(= git log --no-merges)。
+      // 只有 conventional 格式的 merge 訊息會出現,例如同步 hotfix 時寫 `fix: 併入 hotfix v26.10.2`;
+      // 「sync from develop」「Merge branch 'x' into 'develop'」這類沒有 type 的照樣被過濾掉。
+      gitRawCommitsOpts: { merges: null },
+
       // 不解析 commit 裡的 issue 編號(預設會把 #NAS-2821 這類字串轉成
       // 「closes [#NAS-2821](.../issues/NAS-2821)」,而那是 GitLab issue 網址,對外部票號是壞連結)。
       parserOpts: { issuePrefixes: ['__none__'] },
