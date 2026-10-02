@@ -1,5 +1,16 @@
 # Changelog
 
+## [26.6.0](https://github.com/imagine10255/test-gitflow/compare/v26.6.0-rc.0...v26.6.0) (2026-10-02)
+
+## [26.6.0-rc.0](https://github.com/imagine10255/test-gitflow/compare/v26.6.0-beta.0...v26.6.0-rc.0) (2026-10-02)
+
+## [26.6.0-beta.0](https://github.com/imagine10255/test-gitflow/compare/v26.4.0...v26.6.0-beta.0) (2026-10-02)
+
+### Features
+
+* auto sync other release branches on finish ([f1c1244](https://github.com/imagine10255/test-gitflow/commit/f1c1244af4f41a7a5096c37ad4bf2a42feb96841))
+* 更新.gitignore以排除test2目錄 ([49a042a](https://github.com/imagine10255/test-gitflow/commit/49a042a71d2a4ece32f39d64812af98712535b8c))
+
 ## [26.4.0](https://github.com/imagine10255/test-gitflow/compare/v26.4.0-rc.0...v26.4.0) (2026-09-03)
 
 ### Features
