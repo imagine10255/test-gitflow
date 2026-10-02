@@ -54,7 +54,7 @@ release/26.1 → beta   → 佔 qa 環境(QA)
 | `fix/*` | `develop` | `develop` | merge 後砍 |
 | `fix/26.0/*` | `release/26.0`(**進 rc 後才用**) | 同一條 `release/26.0` | merge 後砍 |
 | `release/1.0` | `develop` | `main` → 再由 `main` → `develop` | 上線觀察期過後砍 |
-| `hotfix/1.0.1` | `main` | `main` → 再由 `main` → `develop` → 進行中的 `release/*` | 上線後砍 |
+| `hotfix/1.0.1` | `main` | `main` → 再由 `main` → `develop` → 進行中的 `release/*`(beta 從 develop 補、**rc 從 main 補**) | 上線後砍 |
 
 > **注意 `release/*` 和 `hotfix/*` 都是先進 `main`,再由 `main` 往下流到 `develop`**,不要從 release 分支直接 merge 進 develop。理由見第 12 節。
 >
@@ -289,6 +289,14 @@ npm run release:beta                                        # → v1.1.0-beta.N+
 >
 > 單一 release 分支時沒這個問題,走 develop 中轉是可以的。
 
+> **第二條分支第一顆 beta 的 CHANGELOG 會包含前一條的內容,這是對的,不要修。**
+>
+> `release/26.11` 從 develop 開出來時,26.10 的功能已經在 develop 上(它們是走 develop 進去的),但 26.10 的 tag 打在 `release/26.10` 上,從 develop 往回找不到。所以 `26.11.0-beta.0` 的起點會退回上一個 live 版,那一段會列出 26.10 + 26.11 的全部內容。
+>
+> 看起來重複,但發這顆的當下還不知道 26.10 會上線還是被 cancel。**如果 26.10 被 cancel,它的功能仍在 develop 上、會隨 26.11 上線**——這時那一大段剛好是正確的紀錄。若改用 `git merge-base` 之類的方式裁掉,cancel 時那些功能就會從 CHANGELOG 上消失。
+>
+> 只影響這一顆:之後的 beta 起點是 `v26.11.0-beta.0`,只列增量。
+
 ⚠️ **第二條 release 分支的第一顆 beta 必須明確指定版號。**
 
 因為照第 12 節「上線才承認」,`release/1.0` 沒上線前 `develop` 還停在**上一個正式版**(例如 `0.9.0`)。從那裡起跳算 minor 只會得到 `1.0.0-beta.0`——正是 `release/1.0` 已經佔用的版號。
@@ -352,9 +360,31 @@ npm run release:live -- 1.0.1             # → v1.0.1,在 hotfix 分支上發
 
 git switch main    && git merge --no-ff hotfix/1.0.1 -m "hotfix: v1.0.1" && git push
 git switch develop && git merge --no-ff main -m "merge back" && git push
-git switch release/1.1 && git merge --no-ff develop        # 最容易漏
+git switch release/1.1 && git merge --no-ff develop -m "fix: 併入 hotfix v1.0.1"   # 最容易漏(1.1 還在 beta)
+# 若 release/1.1 已進 rc,改成 git merge --no-ff main,見下方警語
 git push origin --delete hotfix/1.0.1
 ```
+
+> ⚠️ **hotfix 補進已進 rc 的 release 分支,要從 `main` 補,不能從 `develop`。**
+>
+> 演練時踩到:`release/26.2` 在 rc、`release/26.3` 在 beta,hotfix 經 develop 補進 26.2,結果 develop 上 26.3 的 `feat(search)` 一起被帶進 26.2——**下一版的功能夾帶進正在客戶驗收的版本**,沒有任何警告。
+>
+> ```
+> feat(search)(26.3) → develop → sync: hotfix → release/26.2   ✗
+> ```
+>
+> `main` 此時只有「live + hotfix」,沒有下一版的東西,從它補最乾淨。規則跟 fix 一致:**進 rc 就不再碰 develop**。
+>
+> | release 分支狀態 | hotfix 從哪補進來 |
+> |---|---|
+> | 還在 beta | `develop` |
+> | 已進 rc | `main` |
+>
+> 補完用這行確認有沒有夾帶(應該只看到 hotfix 的 commit):
+>
+> ```bash
+> git log ORIG_HEAD..HEAD --oneline --no-merges --invert-grep --grep='chore(release)'   # merge 完立刻跑
+> ```
 
 > **一定要從 `main` 開,不要從 tag 開。** 如果 `main` 已經是 `1.0.1`,從 `v1.0.0` 開分支做 `1.0.2` 會把 `1.0.1` 修好的 bug 帶回去。
 
@@ -413,11 +443,12 @@ git switch main    && git merge --no-ff hotfix/26.1.1 -m "hotfix: v26.1.1" && gi
 git switch develop && git merge --no-ff main -m "merge: v26.1.1 back to develop" && git push
 
 # ⑤ 補進每一條還活著的 release 分支 ← 各撞一次 package.json 衝突,選新的
-git switch release/26.2 && git merge --no-ff develop -m "sync: hotfix 26.1.1"
+#    已進 rc 的從 main 補,還在 beta 的從 develop 補(見下方警語)
+git switch release/26.2 && git merge --no-ff main -m "fix: 併入 hotfix v26.1.1"
 git checkout --ours package.json package-lock.json && git add -A && git merge --continue
 npm run release:rc                        # → 26.2.0-rc.1
 
-git switch release/26.3 && git merge --no-ff develop -m "sync: hotfix 26.1.1"
+git switch release/26.3 && git merge --no-ff develop -m "fix: 併入 hotfix v26.1.1"
 git checkout --ours package.json package-lock.json && git add -A && git merge --continue
 npm run release:beta                      # → 26.3.0-beta.1
 
@@ -427,6 +458,10 @@ git push origin --delete hotfix/26.1.1 && git branch -D hotfix/26.1.1
 **實測結果**(演練跑過完整一輪):只產生 `v26.1.1` 一顆 tag,qa 和 release 環境完全沒被動到;`main` / `develop` 回補零衝突;兩條 release 分支各撞一次版號衝突,選新的即可;修正在三條線上都在,`git log develop..main` 為空。
 
 > **代價:`26.1.1` 沒有經過客戶驗收。** 但客戶正在驗 `26.2.0-rc`,而這個 hotfix 修的是他們現在線上就在遇到的問題,本來就沒有「先給他們驗」的餘裕。lab 驗過 + 修改範圍小,是可接受的取捨。
+
+> **同步的 merge 訊息用 `fix: 併入 hotfix vX.Y.Z`。** 設定裡開了 `merges: null`,conventional 格式的 merge commit 會進 CHANGELOG,所以這個 release 線的下一顆 beta/rc 會多一行「併入 hotfix v26.1.1」,QA 看得出這版包含了哪個 hotfix。
+>
+> 其他 merge(`sync from develop`、`Merge branch 'xxx'`、收尾 script 產生的 `release:` / `merge:` / `hotfix:`)都不是設定裡列出的 type,照樣不會出現。**唯一要避免的是 MR 合併訊息寫成 `feat:` / `fix:`**——那樣 merge commit 會跟裡面的 commit 重複出現。
 
 > **⑤ 是最容易漏的一步。** 漏掉的話 `26.2.0` 或 `26.3.0` 上線會把剛修好的 bug 蓋回去。驗證:
 >
@@ -465,6 +500,11 @@ module.exports = {
     '@release-it/conventional-changelog': {
       // 關掉「依 commit type 推薦版號」,讓 beta/rc 只遞增序號不跳號,見第 11 節
       whatBump: false,
+      // merge commit 也能進 CHANGELOG(預設 --no-merges),只有 conventional 格式的會出現,見第 7 節
+      gitRawCommitsOpts: { merges: null },
+      // 不把 commit 裡的 #NAS-2821 轉成「closes [#NAS-2821](.../issues/...)」
+      // (模板寫死 closes 字樣,網址是 GitLab issue 路徑,對外部票號是壞連結)
+      parserOpts: { issuePrefixes: ['__none__'] },
       // angular preset 會丟棄 refactor,見第 11 節
       preset: {
         name: 'conventionalcommits',
@@ -586,15 +626,42 @@ npm run release:rc                             # → v1.0.0-rc.0
 # ── rc 過:上 live ──
 git log release/1.0..main --oneline            # ① 先確認 main 沒有新 hotfix 沒同步進來
 npm run release:live                           # ② 在 release 分支上發,不用帶版號
+# ↑ 發完自動收尾:release/1.0 → main → develop → 推送 → 刪分支(見下方說明)
 
-git switch main    && git merge --no-ff release/1.0 -m "release: v1.0.0" && git push
-git switch develop && git merge --no-ff main -m "merge: v1.0.0 back to develop" && git push
-# ↑ develop 從 main 合併,不從 release/1.0 合併,見第 12 節
-
-# ── 觀察一天沒事:砍分支 ──
-git push origin --delete release/1.0
 git log develop..main --oneline                # 應為空
+
+# ── 並行時:同步到下一條 release 分支(手動)──
+git switch release/1.1 && git merge --no-ff develop   # 還在 beta 從 develop;已進 rc 從 main
 ```
+
+### 正式版自動收尾
+
+`.release-it.cjs` 的 `after:release` hook 會在**正式版**發完後執行 `scripts/release-finish.cjs`,做的事等同 `git flow finish` 但不打 tag(tag 已由 release-it 打好),也不需要安裝 git-flow:
+
+```
+① release/* 或 hotfix/*  →  main  →  develop(從 main 合併)  →  推送  →  刪除分支
+② 同步到其他進行中的 release 分支:
+     版號是 rc   → 從 main 補(不夾帶下一版的功能)
+     版號是 beta → 從 develop 補
+```
+
+- **beta / rc 會自動略過**,只有正式版才收尾
+- **② 的 merge 訊息**:hotfix 寫 `fix: 併入 hotfix vX.Y.Z`(會進那條線下一顆的 CHANGELOG);release 上線寫 `chore: 併入 vX.Y.Z`(不進 CHANGELOG,上一版的段落已經寫過)
+- **② 的版號衝突自動處理**:`package.json` / `package-lock.json` 保留 release 分支的版號,`CHANGELOG.md` 兩邊都保留
+- **其他檔案衝突**:① 中止並印出接手指令;② 跳過那條分支、不動它,最後列出要手動同步的分支和指令。這時 tag 已經推上去了,照提示接手即可
+
+hook 的輸出預設會被 release-it 收起來,要看完整過程加 `--verbose`。
+
+實測(在隔離的 repo 裡,26.10 在 rc、26.11 在 beta):
+
+| 情境 | 結果 |
+|---|---|
+| hotfix 上線 | 兩條都補到;**rc 那條沒有夾帶 26.11 的功能**;兩條下一顆的 CHANGELOG 都只多一行「併入 hotfix」 |
+| 26.10 正式上線 | 26.10 分支刪除;26.11 補到,版號維持 `26.11.0-beta.0`,`chore:` 訊息不進 CHANGELOG |
+| ① 衝突 | 安全停下,沒有卡在合併中 |
+| ② 衝突(rc 修正與 hotfix 改到同一檔) | main / develop 照常收尾,衝突那條被跳過、完全沒動到,印出正確的接手指令(rc 所以從 main 補) |
+
+> 不要再用 Fork / git-flow 的 finish 按鈕——它會另外打一顆沒有 `v` 的 tag,而且把 release 分支直接併進 develop,讓 `git log develop..main` 一直有殘留。
 
 > ⚠️ **版號要寫完整,包含 `-beta.0` 後綴。**
 >

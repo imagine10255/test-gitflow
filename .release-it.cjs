@@ -16,7 +16,11 @@ module.exports = {
   // 發版不跑 lint / test——那些在 MR 的 CI 就擋過了,發版只負責版號與 tag。
   // 若要在發版前再跑一次,改成:
   //   hooks: { 'before:init': ['npm run lint', 'npm test'] }
-  hooks: {},
+  hooks: {
+    // 正式版發完自動收尾(release/hotfix → main → develop → 刪分支),預發版會自動略過。
+    // 等同 git flow finish 但不打 tag,不需要安裝 git-flow。見 scripts/release-finish.cjs
+    'after:release': 'node scripts/release-finish.cjs ${version}'
+  },
   plugins: {
     '@release-it/conventional-changelog': {
       // 關掉「依 commit type 推薦版號」。
@@ -25,6 +29,15 @@ module.exports = {
       // 關掉後 beta/rc 保證只遞增序號,前三碼永遠不動。
       // 配套:release:live 用 --increment=release 讓 semver 直接落定(見 package.json)。
       whatBump: false,
+
+      // 讓 merge commit 也能進 CHANGELOG。conventional-changelog 預設 merges: false(= git log --no-merges)。
+      // 只有 conventional 格式的 merge 訊息會出現,例如同步 hotfix 時寫 `fix: 併入 hotfix v26.10.2`;
+      // 「sync from develop」「Merge branch 'x' into 'develop'」這類沒有 type 的照樣被過濾掉。
+      gitRawCommitsOpts: { merges: null },
+
+      // 不解析 commit 裡的 issue 編號(預設會把 #NAS-2821 這類字串轉成
+      // 「closes [#NAS-2821](.../issues/NAS-2821)」,而那是 GitLab issue 網址,對外部票號是壞連結)。
+      parserOpts: { issuePrefixes: ['__none__'] },
 
       // angular preset 會丟棄 refactor（見 conventional-changelog-angular/src/writer.js:37,
       // refactor 的分支排在 `else if (discard) return undefined` 之後，只有帶 BREAKING CHANGE 才進得去）。
