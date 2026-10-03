@@ -9,7 +9,8 @@
   "scripts": {
     "release:beta": "release-it --preRelease=beta --ci",
     "release:rc": "release-it --preRelease=rc --ci",
-    "release:live": "release-it --increment=release --ci"
+    "release:live": "release-it --increment=release --ci",
+    "prepare": "node scripts/merge-changelog.cjs --install"
   },
   "repository": {
     "type": "git",

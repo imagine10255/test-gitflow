@@ -653,7 +653,7 @@ git switch release/1.1 && git merge --no-ff develop   # 還在 beta 從 develop;
 
 - **beta / rc 會自動略過**,只有正式版才收尾
 - **② 的 merge 訊息**:hotfix 寫 `fix: 併入 hotfix vX.Y.Z`(會進那條線下一顆的 CHANGELOG);release 上線寫 `chore: 併入 vX.Y.Z`(不進 CHANGELOG,上一版的段落已經寫過)
-- **② 的版號衝突自動處理**:`package.json` / `package-lock.json` 保留 release 分支的版號,`CHANGELOG.md` 兩邊都保留
+- **② 的版號衝突自動處理**:`package.json` / `package-lock.json` 保留 release 分支的版號,`CHANGELOG.md` 以版本段落合併(見第 13 節)
 - **其他檔案衝突**:① 中止並印出接手指令;② 跳過那條分支、不動它,最後列出要手動同步的分支和指令。這時 tag 已經推上去了,照提示接手即可
 
 hook 的輸出預設會被 release-it 收起來,要看完整過程加 `--verbose`。
@@ -1104,17 +1104,25 @@ git log release/1.0..main --oneline    # 有輸出就先同步再發
 
 ### `CHANGELOG.md`
 
-beta/rc 也寫檔之後,每次跨分支 merge 都會撞。`merge=union` 可以消除衝突且不會弄壞內容(不像 `package.json` 會變成無效 JSON),**但有代價**:
+beta/rc 也寫檔之後,同步到並行的 release 分支時兩邊都改了 CHANGELOG,一定會撞。用 `scripts/merge-changelog.cjs` 當 git merge driver,**以版本段落為單位合併**:
 
 ```
-# [1.2.0-rc.0](...compare/v1.2.0-beta.3...v1.2.0-rc.0)
-## [1.1.3](...compare/v1.2.0-beta.3...v1.2.0-rc.0)      ← compare 連結錯了
-## [1.1.3-rc.0](...compare/v1.2.0-beta.3...v1.2.0-rc.0) ← 順序也亂了
+# .gitattributes
+CHANGELOG.md merge=changelog
 ```
 
-union 是逐行合併不管語意。內容不會遺失,但這份 CHANGELOG 不適合直接對外發佈。
+```json
+// package.json:npm install 時自動設定 merge driver(不是 git repo 就安靜略過)
+"prepare": "node scripts/merge-changelog.cjs --install"
+```
 
-**兩個選擇**:接受手動解(每次只有幾行),或用 union 並讓對外版本以 GitLab Releases 為準(Releases 各自獨立產生,沒有這個問題)。
+合併規則:兩邊的段落取聯集、同一版本只留一份(以目前分支為準)、依版號由新到舊排序。每段內容一定跟著自己的版本走。
+
+> ⚠️ **不要用 `merge=union`。** 之前用過,實測會出事:26.10 上線同步進 26.11 時,兩邊都在檔案最上面加了新段落,union 逐行合併把兩邊的行交錯在一起,結果 `26.11.0-beta.0` 那段變空,它的內容被塞到 `26.10.0-beta.0` 底下,還有一條 `feat` 跑進 Bug Fixes。**內容被歸到錯的版本**,沒有任何錯誤訊息。
+>
+> 換成段落合併後重跑同一個情境(加上 hotfix):每段內容都在自己的版本底下、沒有重複段落、順序正確。
+
+**每個人 clone 之後要跑過一次 `npm install`**,driver 才會生效。沒裝的話 git 會退回一般的三方合併,CHANGELOG 會標成衝突;收尾 script 遇到這種情況會自己用同一套邏輯解掉,手動同步時就要自己處理(或先 `npm install` 再重新 merge)。
 
 ---
 

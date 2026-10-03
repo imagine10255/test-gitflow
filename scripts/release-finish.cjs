@@ -12,12 +12,10 @@
 // 衝突處理:
 //   ①  任何衝突都中止並還原,印出接手指令。
 //   ②  package.json / package-lock.json 保留 release 分支的版號(一定比較新)、
-//      CHANGELOG.md 兩邊都保留;其他檔案衝突就跳過那條分支,最後列出要人處理的。
+//      CHANGELOG.md 以版本段落合併;其他檔案衝突就跳過那條分支,最後列出要人處理的。
 
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
-const os = require('node:os');
-const path = require('node:path');
 
 const version = process.argv[2];
 if (!version) {
@@ -79,18 +77,12 @@ const syncMessage = isHotfix ? `fix: 併入 hotfix v${version}` : `chore: 併入
 
 const VERSION_FILES = ['package.json', 'package-lock.json'];
 
-function unionChangelog() {
-    // 兩邊都保留:用 git merge-file --union 把 base / ours / theirs 合成一份
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'finish-'));
-    const write = (stage, name) => {
-        const p = path.join(tmp, name);
-        fs.writeFileSync(p, tryGit('show', `:${stage}:CHANGELOG.md`) ?? '');
-        return p;
-    };
-    const ours = write(2, 'ours'), base = write(1, 'base'), theirs = write(3, 'theirs');
-    const merged = execFileSync('git', ['merge-file', '--union', '-p', ours, base, theirs], { encoding: 'utf8' });
-    fs.writeFileSync('CHANGELOG.md', merged.endsWith('\n') ? merged : merged + '\n');
-    fs.rmSync(tmp, { recursive: true, force: true });
+function mergeChangelogConflict() {
+    // 以版本段落為單位合併(沒裝 merge driver 時才會走到這裡),見 scripts/merge-changelog.cjs
+    const { mergeChangelog } = require('./merge-changelog.cjs');
+    const ours = tryGit('show', ':2:CHANGELOG.md') ?? '';
+    const theirs = tryGit('show', ':3:CHANGELOG.md') ?? '';
+    fs.writeFileSync('CHANGELOG.md', mergeChangelog(ours, theirs));
 }
 
 function syncRelease(target) {
@@ -112,7 +104,7 @@ function syncRelease(target) {
         }
         for (const f of conflicts) {
             if (VERSION_FILES.includes(f)) git('checkout', '--ours', f);
-            else unionChangelog();
+            else mergeChangelogConflict();
             git('add', f);
         }
         git('-c', 'core.editor=true', 'commit', '--no-edit');

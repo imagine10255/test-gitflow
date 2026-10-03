@@ -1,2 +1,2 @@
-CHANGELOG.md merge=union
+CHANGELOG.md merge=changelog
 package-lock.json -merge
