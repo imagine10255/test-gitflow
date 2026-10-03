@@ -60,9 +60,21 @@ module.exports = {
       },
       infile: 'CHANGELOG.md',
       writerOpts: {
-        // angular preset 預設是「patch 位 != 0 就用 ##」，跟穩定/預發無關，
-        // 結果 hotfix 正式版 1.1.3 是 ##，比 1.2.0-beta.0 的 # 還小。
-        // 改成:prerelease 用 ##、正式版用 #
+        // 標題層級:正式版用 #、prerelease 用 ##。
+        // conventionalcommits preset 的標題模板寫死 `## `(templates.js:25),不看 isPatch,
+        // 所以要自己提供 headerPartial。compare 連結照抄 preset 展開後的寫法(writer.js:15-17、52)。
+        headerPartial:
+          '{{#if isPatch}}##{{else}}#{{/if}} {{#if @root.linkCompare~}}\n' +
+          '  [{{version}}]({{~@root.host}}/{{#if this.owner}}{{~this.owner}}{{else}}{{~@root.owner}}{{/if}}/' +
+          '{{#if this.repository}}{{~this.repository}}{{else}}{{~@root.repository}}{{/if}}/compare/{{previousTag}}...{{currentTag}})\n' +
+          '{{~else}}\n' +
+          '  {{~version}}\n' +
+          '{{~/if}}\n' +
+          '{{~#if title}} "{{title}}"\n' +
+          '{{~/if}}\n' +
+          '{{~#if date}} ({{date}})\n' +
+          '{{/if}}\n',
+        // isPatch 原本的意思是「patch 位 != 0」,改成「是不是 prerelease」
         finalizeContext(context) {
           context.isPatch = !!semver.prerelease(context.version);
           // 自訂 finalizeContext 會整個覆蓋掉內建的那份,linkCompare 得自己補回來

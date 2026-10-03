@@ -524,7 +524,13 @@ module.exports = {
       },
       infile: 'CHANGELOG.md',
       writerOpts: {
-        // 標題層級改用 prerelease 判斷(預設是看 patch 位),見第 11 節
+        // 標題層級:正式版 #、prerelease ##,見第 11 節
+        // conventionalcommits 的標題模板寫死 `## `,所以要自己提供 headerPartial
+        headerPartial:
+          '{{#if isPatch}}##{{else}}#{{/if}} {{#if @root.linkCompare~}}\n' +
+          '  [{{version}}]({{~@root.host}}/{{#if this.owner}}{{~this.owner}}{{else}}{{~@root.owner}}{{/if}}/' +
+          '{{#if this.repository}}{{~this.repository}}{{else}}{{~@root.repository}}{{/if}}/compare/{{previousTag}}...{{currentTag}})\n' +
+          '{{~else}}\n  {{~version}}\n{{~/if}}\n{{~#if title}} "{{title}}"\n{{~/if}}\n{{~#if date}} ({{date}})\n{{/if}}\n',
         finalizeContext(context) {
           context.isPatch = !!semver.prerelease(context.version);
           // 自訂 finalizeContext 會整個覆蓋內建那份,linkCompare 得自己補回來
@@ -968,6 +974,10 @@ $ git describe --tags --abbrev=0     ← $ = 真的執行了(唯讀查詢)
 | `1.1.3` | 3 | `##` ← 正式版反而比 beta 小 |
 
 第 8 節的 `finalizeContext` 改用 `semver.prerelease()` 判斷:正式版 `#`、prerelease `##`。
+
+> ⚠️ **換成 `conventionalcommits` preset 時,這段曾經悄悄失效過。** 上面那個「看 `isPatch`」的規則是 `angular` preset 的模板;`conventionalcommits` 的標題模板直接寫死 `## `(`conventional-changelog-conventionalcommits/src/templates.js:25`),完全不看 `isPatch`。結果所有段落都變成 `##`,沒有任何錯誤訊息。
+>
+> 所以第 8 節的設定除了 `finalizeContext`,還要自己提供 `headerPartial`,把開頭換成 `{{#if isPatch}}##{{else}}#{{/if}}`。compare 連結的部分照抄 preset 展開後的寫法。之後若再換 preset,記得檢查正式版的標題是不是 `#`。
 
 **那三行 `linkCompare` 不能省。** conventional-changelog 內建一個 `finalizeContext` 在設 `linkCompare`,自訂的會把它整個覆蓋掉,少了那三行 compare 連結會全部消失。
 
