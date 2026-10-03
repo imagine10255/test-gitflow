@@ -667,6 +667,20 @@ hook 的輸出預設會被 release-it 收起來,要看完整過程加 `--verbose
 | ① 衝突 | 安全停下,沒有卡在合併中 |
 | ② 衝突(rc 修正與 hotfix 改到同一檔) | main / develop 照常收尾,衝突那條被跳過、完全沒動到,印出正確的接手指令(rc 所以從 main 補) |
 
+### 一整輪實際跑出來的樣子
+
+用目前的完整設定(含自動收尾)跑一整輪的結果:兩個需求開 release/26.10 → QA 回報與窗口期需求共發四顆 beta → 進 rc,同時開 release/26.11 → 客戶回報兩次發到 rc.2 → `npm run release:live`。
+
+![一整輪發版的 git 線圖](images/full-cycle.svg)
+
+live 之後:
+
+- 分支只剩 `main`、`develop`、`release/26.11`,`release/26.10` 已自動刪除
+- `main` 的主線只有兩顆:`v26.9.0` 和 `release: v26.10.0`
+- `release/26.11` 自動補進了 `chore: 併入 v26.10.0`,版號維持 `26.11.0-beta.0`
+- `git log develop..main` 為空
+- CHANGELOG 每顆 beta / rc 只列它自己新增的東西,`26.10.0` 標題是 `#`、其餘是 `##`
+
 > 不要再用 Fork / git-flow 的 finish 按鈕——它會另外打一顆沒有 `v` 的 tag,而且把 release 分支直接併進 develop,讓 `git log develop..main` 一直有殘留。
 
 > ⚠️ **版號要寫完整,包含 `-beta.0` 後綴。**

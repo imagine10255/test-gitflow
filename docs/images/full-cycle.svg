@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1370 580" width="1370" height="580" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif">
+  <style>
+    .bg      { fill: #ffffff; }
+    .title   { fill: #0f172a; font-size: 15px; font-weight: 700; }
+    .lane    { font-size: 12.5px; font-weight: 700; }
+    .feat    { stroke: #8b5cf6; stroke-width: 2.2; fill: none; }
+    .fix     { stroke: #ec4899; stroke-width: 2.2; fill: none; }
+    .dev     { stroke: #3b82f6; stroke-width: 2.5; fill: none; }
+    .rel     { stroke: #f59e0b; stroke-width: 2.5; fill: none; }
+    .rel2    { stroke: #14b8a6; stroke-width: 2.5; fill: none; }
+    .main    { stroke: #22c55e; stroke-width: 2.5; fill: none; }
+    .link    { stroke: #94a3b8; stroke-width: 1.6; fill: none; }
+    .finish  { stroke: #64748b; stroke-width: 2.2; fill: none; stroke-dasharray: 6 3; }
+    .dFeat { fill: #8b5cf6; } .dFix { fill: #ec4899; } .dDev { fill: #3b82f6; }
+    .dRel  { fill: #f59e0b; } .dRel2 { fill: #14b8a6; } .dMain { fill: #22c55e; }
+    .tFeat { fill: #6b21a8; } .tFix { fill: #9d174d; } .tDev { fill: #1e40af; }
+    .tRel  { fill: #92400e; } .tRel2 { fill: #115e59; } .tMain { fill: #166534; }
+    .br    { font-size: 11px; font-weight: 600; }
+    .tag   { font-size: 11px; font-weight: 700; }
+    .tagB  { font-size: 12px; font-weight: 800; }
+    .note  { fill: #475569; font-size: 11px; }
+    .step  { fill: #ffffff; stroke: #64748b; stroke-width: 1.4; }
+    .stepT { fill: #334155; font-size: 11px; font-weight: 700; }
+    .freeze  { stroke: #a855f7; stroke-width: 1.4; stroke-dasharray: 4 3; }
+    .freezeT { fill: #7e22ce; font-size: 11px; font-weight: 700; }
+    .callout  { fill: #fffbeb; stroke: #f59e0b; stroke-width: 1.2; }
+    .calloutT { fill: #92400e; font-size: 11.5px; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0f172a; } .title { fill: #f1f5f9; }
+      .feat { stroke: #a78bfa; } .fix { stroke: #f472b6; } .dev { stroke: #60a5fa; }
+      .rel { stroke: #fbbf24; } .rel2 { stroke: #2dd4bf; } .main { stroke: #4ade80; }
+      .link { stroke: #64748b; } .finish { stroke: #94a3b8; }
+      .dFeat { fill: #a78bfa; } .dFix { fill: #f472b6; } .dDev { fill: #60a5fa; }
+      .dRel { fill: #fbbf24; } .dRel2 { fill: #2dd4bf; } .dMain { fill: #4ade80; }
+      .tFeat { fill: #e9d5ff; } .tFix { fill: #fbcfe8; } .tDev { fill: #bfdbfe; }
+      .tRel { fill: #fde68a; } .tRel2 { fill: #99f6e4; } .tMain { fill: #bbf7d0; }
+      .note { fill: #cbd5e1; }
+      .step { fill: #1e293b; stroke: #94a3b8; } .stepT { fill: #e2e8f0; }
+      .freeze { stroke: #c084fc; } .freezeT { fill: #e9d5ff; }
+      .callout { fill: #422006; stroke: #fbbf24; } .calloutT { fill: #fde68a; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="1370" height="580"/>
+  <text class="title" x="20" y="30">一整輪發版 · 多個需求 → 多顆 beta → 多顆 rc → live(並行下一版)</text>
+
+  <!-- ═══ 分支名稱 ═══ -->
+  <text class="lane tFeat" x="20" y="82">feature / fix</text>
+  <text class="lane tDev"  x="20" y="154">develop</text>
+  <text class="lane tRel"  x="20" y="259">release/26.10</text>
+  <text class="lane tFix"  x="20" y="324">fix/26.10/*</text>
+  <text class="lane tRel2" x="20" y="399">release/26.11</text>
+  <text class="lane tMain" x="20" y="474">main</text>
+
+  <!-- ═══ 主線 ═══ -->
+  <line class="dev"  x1="100" y1="150" x2="1345" y2="150"/>
+  <line class="main" x1="100" y1="470" x2="1345" y2="470"/>
+  <line class="rel"  x1="395" y1="255" x2="1170" y2="255"/>
+  <line class="rel2" x1="1050" y1="395" x2="1345" y2="395"/>
+
+  <!-- 起點 v26.9.0 -->
+  <path class="link" d="M100,470 C100,320 100,300 100,150"/>
+  <circle class="dMain" cx="100" cy="470" r="6"/>
+  <circle class="dDev" cx="100" cy="150" r="4.5"/>
+  <text class="tagB tMain" x="100" y="494" text-anchor="middle">v26.9.0</text>
+
+  <!-- ═══ 窗口期:feature / fix 走 MR 進 develop ═══ -->
+  <!-- RDS-101 -->
+  <path class="link" d="M130,150 C130,110 150,90 155,78"/><line class="feat" x1="155" y1="78" x2="220" y2="78"/>
+  <circle class="dFeat" cx="175" cy="78" r="4"/><circle class="dFeat" cx="200" cy="78" r="4"/>
+  <path class="link" d="M220,78 C230,95 240,120 240,150"/><circle class="dDev" cx="240" cy="150" r="4.5"/>
+  <text class="br tFeat" x="150" y="64">feature/RDS-101</text>
+  <!-- RDS-102 -->
+  <path class="link" d="M255,150 C255,110 270,90 275,78"/><line class="feat" x1="275" y1="78" x2="330" y2="78"/>
+  <circle class="dFeat" cx="292" cy="78" r="4"/><circle class="dFeat" cx="315" cy="78" r="4"/>
+  <path class="link" d="M330,78 C340,95 350,120 350,150"/><circle class="dDev" cx="350" cy="150" r="4.5"/>
+  <text class="br tFeat" x="262" y="64">feature/RDS-102</text>
+
+  <!-- 開 release/26.10 -->
+  <path class="link" d="M370,150 C370,215 385,240 395,255"/>
+  <text class="note" x="300" y="205">開 release/26.10</text>
+  <circle class="dRel" cx="415" cy="255" r="5.5"/>
+  <text class="tag tRel" x="415" y="279" text-anchor="middle">v26.10.0-beta.0</text>
+
+  <!-- SG-201 / 202 → beta.1 -->
+  <path class="link" d="M440,150 C440,110 450,90 455,78"/><line class="fix" x1="455" y1="78" x2="515" y2="78"/>
+  <circle class="dFix" cx="475" cy="78" r="4"/><circle class="dFix" cx="500" cy="78" r="4"/>
+  <path class="link" d="M515,78 C525,95 530,120 530,150"/><circle class="dDev" cx="530" cy="150" r="4.5"/>
+  <text class="br tFix" x="440" y="64">fix/SG-201、SG-202</text>
+  <path class="link" d="M545,150 C545,215 560,240 565,255"/><circle class="dRel" cx="565" cy="255" r="3.5"/>
+  <circle class="dRel" cx="585" cy="255" r="5"/>
+  <text class="tag tRel" x="585" y="279" text-anchor="middle">beta.1</text>
+
+  <!-- RDS-103 → beta.2 -->
+  <path class="link" d="M605,150 C605,110 615,90 620,78"/><line class="feat" x1="620" y1="78" x2="660" y2="78"/>
+  <circle class="dFeat" cx="640" cy="78" r="4"/>
+  <path class="link" d="M660,78 C670,95 680,120 680,150"/><circle class="dDev" cx="680" cy="150" r="4.5"/>
+  <text class="br tFeat" x="600" y="64">feature/RDS-103</text>
+  <path class="link" d="M695,150 C695,215 710,240 715,255"/><circle class="dRel" cx="715" cy="255" r="3.5"/>
+  <circle class="dRel" cx="735" cy="255" r="5"/>
+  <text class="tag tRel" x="735" y="279" text-anchor="middle">beta.2</text>
+
+  <!-- SG-205 → beta.3 -->
+  <path class="link" d="M755,150 C755,110 765,90 770,78"/><line class="fix" x1="770" y1="78" x2="810" y2="78"/>
+  <circle class="dFix" cx="790" cy="78" r="4"/>
+  <path class="link" d="M810,78 C820,95 830,120 830,150"/><circle class="dDev" cx="830" cy="150" r="4.5"/>
+  <text class="br tFix" x="758" y="64">fix/SG-205</text>
+  <path class="link" d="M845,150 C845,215 860,240 865,255"/><circle class="dRel" cx="865" cy="255" r="3.5"/>
+  <circle class="dRel" cx="885" cy="255" r="5"/>
+  <text class="tag tRel" x="885" y="279" text-anchor="middle">beta.3</text>
+
+  <!-- 進 rc:凍結 -->
+  <line class="freeze" x1="903" y1="222" x2="903" y2="350"/>
+  <text class="freezeT" x="830" y="218">進 rc:凍結</text>
+  <circle class="dRel" cx="920" cy="255" r="5.5"/>
+  <text class="tag tRel" x="920" y="243" text-anchor="middle">rc.0</text>
+
+  <!-- RDS-110 → 開 release/26.11 -->
+  <path class="link" d="M935,150 C935,110 945,90 950,78"/><line class="feat" x1="950" y1="78" x2="990" y2="78"/>
+  <circle class="dFeat" cx="970" cy="78" r="4"/>
+  <path class="link" d="M990,78 C1000,95 1010,120 1010,150"/><circle class="dDev" cx="1010" cy="150" r="4.5"/>
+  <text class="br tFeat" x="935" y="64">feature/RDS-110</text>
+  <path class="link" d="M1025,150 C1025,300 1040,370 1050,395"/>
+  <circle class="dRel2" cx="1070" cy="395" r="5.5"/>
+  <text class="tag tRel2" x="1070" y="419" text-anchor="middle">v26.11.0-beta.0</text>
+
+  <!-- rc 階段 fix:從 release/26.10 開 -->
+  <path class="link" d="M940,255 C940,295 950,312 955,320"/><line class="fix" x1="955" y1="320" x2="985" y2="320"/>
+  <circle class="dFix" cx="970" cy="320" r="4"/>
+  <path class="link" d="M985,320 C995,305 1000,280 1000,255"/><circle class="dRel" cx="1000" cy="255" r="3.5"/>
+  <text class="br tFix" x="925" y="343">SG-210</text>
+  <circle class="dRel" cx="1020" cy="255" r="5"/>
+  <text class="tag tRel" x="1020" y="243" text-anchor="middle">rc.1</text>
+
+  <path class="link" d="M1045,255 C1045,295 1055,312 1060,320"/><line class="fix" x1="1060" y1="320" x2="1090" y2="320"/>
+  <circle class="dFix" cx="1075" cy="320" r="4"/>
+  <path class="link" d="M1090,320 C1100,305 1105,280 1105,255"/><circle class="dRel" cx="1105" cy="255" r="3.5"/>
+  <text class="br tFix" x="1050" y="343">SG-211</text>
+  <circle class="dRel" cx="1125" cy="255" r="5"/>
+  <text class="tag tRel" x="1125" y="243" text-anchor="middle">rc.2</text>
+
+  <!-- live -->
+  <circle class="dRel" cx="1158" cy="255" r="7.5"/>
+  <text class="tagB tRel" x="1158" y="279" text-anchor="middle">v26.10.0</text>
+  <text class="note" x="1170" y="241">已自動刪除</text>
+
+  <!-- ═══ release:live 之後自動收尾 ═══ -->
+  <!-- ① release/26.10 → main -->
+  <path class="finish" d="M1170,255 C1185,330 1190,420 1192,464"/>
+  <circle class="dMain" cx="1195" cy="470" r="6"/>
+  <circle class="step" cx="1178" cy="372" r="9"/><text class="stepT" x="1178" y="376" text-anchor="middle">1</text>
+  <!-- ② main → develop -->
+  <path class="finish" d="M1205,470 C1222,330 1228,200 1230,156"/>
+  <circle class="dDev" cx="1232" cy="150" r="5"/>
+  <circle class="step" cx="1224" cy="300" r="9"/><text class="stepT" x="1224" y="304" text-anchor="middle">2</text>
+  <!-- ③ develop → release/26.11 -->
+  <path class="finish" d="M1245,150 C1258,240 1265,340 1268,389"/>
+  <circle class="dRel2" cx="1270" cy="395" r="5"/>
+  <circle class="step" cx="1262" cy="250" r="9"/><text class="stepT" x="1262" y="254" text-anchor="middle">3</text>
+  <text class="br tRel2" x="1222" y="419">chore: 併入 v26.10.0</text>
+
+  <!-- ═══ 說明 ═══ -->
+  <rect class="callout" x="20" y="512" width="1330" height="50" rx="5"/>
+  <text class="calloutT" x="34" y="532">beta 階段的 fix 從 develop 開、經 develop 同步進 release;進 rc 之後 release/26.10 凍結,客戶回報的修正(SG-210、SG-211)直接從 release 分支開。</text>
+  <text class="calloutT" x="34" y="551">npm run release:live 發完 v26.10.0 後自動收尾:① 併入 main → ② main 併入 develop → ③ 同步到還在 beta 的 release/26.11 → 刪除 release/26.10。</text>
+</svg>
