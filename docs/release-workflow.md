@@ -1237,5 +1237,5 @@ dry-run 要確認三件事:版號是 `26.10.0-beta.0`(有 `-beta.0` 後綴)、CH
 ### 要依專案調整的地方
 
 - `.release-it.cjs` 的 `requireBranch`:分支名稱不是 `release/*`、`hotfix/*` 的話要改,`scripts/release-finish.cjs` 裡的判斷也要一起改
-- 主分支叫 `master` 而不是 `main`:`scripts/release-finish.cjs` 裡的 `'main'` 要改
+- 主分支叫 `master`:**不用改**,收尾 script 會自動判斷(遠端有 `main` 就用 `main`,否則用 `master`)。主分支是其他名稱時,設環境變數 `RELEASE_MAIN_BRANCH`
 - 想建 GitLab Release:`.release-it.cjs` 加 `gitlab: { release: true, releaseName: 'v${version}' }`,並設定 `GITLAB_TOKEN`(scope 勾 `api`)

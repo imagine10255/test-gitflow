@@ -36,6 +36,9 @@ if (!/^(release|hotfix)\//.test(branch)) {
     console.error(`[finish] 目前在 ${branch},只能從 release/* 或 hotfix/* 收尾`);
     process.exit(1);
 }
+// 主分支:遠端有 main 就用 main,否則用 master。要指定別的名稱可設環境變數 RELEASE_MAIN_BRANCH。
+const MAIN = process.env.RELEASE_MAIN_BRANCH
+    || (tryGit('ls-remote', '--exit-code', '--heads', 'origin', 'main') ? 'main' : 'master');
 const isHotfix = branch.startsWith('hotfix/');
 const label = isHotfix ? 'hotfix' : 'release';
 
@@ -62,9 +65,9 @@ function mergeInto(target, source, message) {
     run('push', 'origin', target);
 }
 
-console.log(`[finish] v${version}:${branch} → main → develop`);
-mergeInto('main', branch, `${label}: v${version}`);
-mergeInto('develop', 'main', `merge: v${version} back to develop`);
+console.log(`[finish] v${version}:${branch} → ${MAIN} → develop`);
+mergeInto(MAIN, branch, `${label}: v${version}`);
+mergeInto('develop', MAIN, `merge: v${version} back to develop`);
 
 run('push', 'origin', '--delete', branch);
 run('branch', '-d', branch);
@@ -90,7 +93,7 @@ function syncRelease(target) {
     run('pull', '--ff-only', 'origin', target);
 
     const v = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
-    const source = v.includes('-rc.') ? 'main' : v.includes('-beta.') ? 'develop' : null;
+    const source = v.includes('-rc.') ? MAIN : v.includes('-beta.') ? 'develop' : null;
     if (!source) return { target, status: 'skip', reason: `版號 ${v} 不是 beta / rc` };
 
     try {
@@ -122,7 +125,7 @@ run('switch', 'develop');
 
 // ── 結果 ──────────────────────────────────────────────────────────────
 
-console.log(`\n[finish] ✓ ${branch} 已併入 main、develop 並刪除。`);
+console.log(`\n[finish] ✓ ${branch} 已併入 ${MAIN}、develop 並刪除。`);
 if (results.length === 0) {
     console.log('         沒有其他進行中的 release 分支。');
 }
