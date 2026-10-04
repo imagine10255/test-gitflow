@@ -1,4 +1,50 @@
+const { execFileSync } = require('node:child_process');
 const semver = require('semver');
+const path = require('node:path');
+// conventional-changelog 的 exports 只開放 import 條件,直接指到實際檔案(Node >= 22.12 可 require ESM)
+const { ConventionalChangelog } = require(
+  path.join(__dirname, 'node_modules/conventional-changelog/dist/index.js')
+);
+
+// 避免 hotfix 合回 release 分支後,CHANGELOG 把整串 beta 重新產生一次。
+// conventional-changelog 會把所有可達的 semver tag 依時間排序(git log --date-order),從 previousTag 之後逐段切範圍。
+// hotfix tag(如 v26.9.6)是從 main 合進來的,時間比 previousTag(如 v26.10.0-beta.17)新,
+// 於是最後一段變成 `v26.9.6..HEAD`,涵蓋這條 release 線分岔以來的所有 commit,beta.0 ~ beta.N 就全部重出一次。
+// 修法:
+// 1. 只保留 previousTag 本身及其祖先的 tag,讓範圍固定是 `previousTag..HEAD`。
+// 2. hotfix 合進來的 commit 在 `previousTag..HEAD` 裡仍算「新的」,但它們的段落已透過 CHANGELOG.md 的合併帶進來,
+//    所以把「從被排除的 tag 可達」的 commit 也略過,只留這條線上真正新增的內容。
+// ⚠️ 這段改的是套件內部(this.params、getSemverTags),conventional-changelog 與
+//    @release-it/conventional-changelog 必須鎖精確版本;升級後要跑一次 --dry-run 確認沒有重複段落。
+function isAncestor(ancestor, descendant) {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', ancestor, descendant], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const originalGetSemverTags = ConventionalChangelog.prototype.getSemverTags;
+ConventionalChangelog.prototype.getSemverTags = async function () {
+  const tags = await originalGetSemverTags.call(this);
+  const { commits } = await this.params;
+  const from = commits?.from;
+  if (!from || !tags.includes(from)) return tags;
+
+  const keptTags = tags.filter(tag => isAncestor(tag, from));
+  const mergedInTags = tags.filter(tag => !keptTags.includes(tag));
+  if (mergedInTags.length > 0) {
+    const mergedInHashes = execFileSync('git', ['rev-list', ...mergedInTags, `^${from}`], { encoding: 'utf8' })
+      .split('\n')
+      .filter(Boolean);
+    if (mergedInHashes.length > 0) {
+      commits.ignore = new RegExp(mergedInHashes.join('|'));
+    }
+  }
+  return keptTags;
+};
+
 
 module.exports = {
   git: {

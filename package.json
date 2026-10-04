@@ -26,7 +26,12 @@
   "homepage": "https://github.com/imagine10255/test-gitflow#readme",
   "private": "true",
   "devDependencies": {
-    "@release-it/conventional-changelog": "^11.0.1",
-    "release-it": "^20.2.1"
+    "@release-it/conventional-changelog": "11.0.1",
+    "conventional-changelog": "7.2.1",
+    "release-it": "20.2.1",
+    "semver": "7.8.5"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }

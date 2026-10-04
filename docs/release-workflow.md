@@ -1168,3 +1168,74 @@ git branch --contains $(git rev-parse main) | grep release/
 ```
 
 **第 3 條在 release 進行中會有輸出,那是預期的**(上線才承認)。只在上線回補後跑才有意義。
+
+---
+
+## 16. 遷移到正式專案
+
+### 要複製的檔案
+
+| 檔案 | 作用 |
+|---|---|
+| `.release-it.cjs` | release-it 設定:版號規則、CHANGELOG 格式、`getSemverTags` patch、收尾 hook |
+| `scripts/release-finish.cjs` | 正式版發完自動收尾(併 main → develop、同步其他 release 分支、刪分支) |
+| `scripts/merge-changelog.cjs` | CHANGELOG.md 以版本段落合併的 git merge driver |
+| `.gitattributes` | `CHANGELOG.md merge=changelog`、`package-lock.json -merge` |
+| `.nvmrc` | Node 22(`.release-it.cjs` 要 require ESM,需要 >= 22.12) |
+| `docs/release-workflow.md` + `docs/images/*.svg` | 團隊規範(選配) |
+
+### `package.json` 要合併的部分
+
+```json
+{
+  "scripts": {
+    "release:beta": "release-it --preRelease=beta --ci",
+    "release:rc": "release-it --preRelease=rc --ci",
+    "release:live": "release-it --increment=release --ci",
+    "prepare": "node scripts/merge-changelog.cjs --install"
+  },
+  "devDependencies": {
+    "release-it": "20.2.1",
+    "@release-it/conventional-changelog": "11.0.1",
+    "conventional-changelog": "7.2.1",
+    "semver": "7.8.5"
+  },
+  "engines": { "node": ">=22.12" }
+}
+```
+
+**版本一定要鎖精確值**(不要 `^`)。`.release-it.cjs` 的 patch 改的是 `conventional-changelog` 的內部,升級後可能悄悄失效。`conventional-changelog` 要另外列進 devDependencies,確保它被裝在最外層、而且跟 plugin 用的是同一份——裝完用 `npm ls conventional-changelog` 確認只有一份(plugin 那份顯示 `deduped`)。
+
+### 第一次導入要做的事
+
+```bash
+# 1. 裝套件(prepare 會順便設定 CHANGELOG 的 merge driver)
+npm install
+
+# 2. 如果專案還沒有 v 開頭的 tag,先補一顆基準 tag,不然第一次 CHANGELOG 會把整個歷史塞進同一版
+git tag -a v26.9.0 -m "baseline before release-it" HEAD    # 換成目前上線的版號
+git push origin v26.9.0
+
+# 3. 讓 tag 排序正確(每個人本機都要做一次)
+git config --add versionsort.suffix "-beta"
+git config --add versionsort.suffix "-rc"
+
+# 4. 開第一條 release 分支,先 dry-run 確認
+git switch -c release/26.10 develop && git push -u origin release/26.10
+npm run release:beta -- 26.10.0-beta.0 --dry-run
+```
+
+dry-run 要確認三件事:版號是 `26.10.0-beta.0`(有 `-beta.0` 後綴)、CHANGELOG 只列出基準 tag 之後的 commit、標題是 `##`。
+
+### 每個團隊成員要做的事
+
+- **clone 後跑一次 `npm install`**:merge driver 才會生效,沒裝的話同步 release 分支時 CHANGELOG 會變成一般衝突
+- **Node 版本 >= 22.12**:太舊的話載入設定時會報 `ERR_REQUIRE_ESM`
+- **不要再用 Fork / git-flow 的 finish**:收尾交給 `npm run release:live`
+- **MR 合併訊息不要寫成 `feat:` / `fix:`**:設定開了 `merges: null`,conventional 格式的 merge commit 會進 CHANGELOG,跟裡面的 commit 重複
+
+### 要依專案調整的地方
+
+- `.release-it.cjs` 的 `requireBranch`:分支名稱不是 `release/*`、`hotfix/*` 的話要改,`scripts/release-finish.cjs` 裡的判斷也要一起改
+- 主分支叫 `master` 而不是 `main`:`scripts/release-finish.cjs` 裡的 `'main'` 要改
+- 想建 GitLab Release:`.release-it.cjs` 加 `gitlab: { release: true, releaseName: 'v${version}' }`,並設定 `GITLAB_TOKEN`(scope 勾 `api`)
