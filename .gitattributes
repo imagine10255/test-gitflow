@@ -1,2 +1,3 @@
 CHANGELOG.md merge=changelog
+package.json merge=packagejson
 package-lock.json -merge

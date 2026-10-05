@@ -8,7 +8,8 @@
 //
 // 用法:
 //   git merge driver: node scripts/merge-changelog.cjs %O %A %B   (結果寫回 %A)
-//   安裝 driver 設定: node scripts/merge-changelog.cjs --install   (npm 的 prepare 會自動跑)
+//   安裝 driver 設定: node scripts/merge-changelog.cjs --install   (npm 的 prepare 會自動跑;
+//                     同時安裝 package.json 的 driver,見 merge-package-json.cjs)
 
 const fs = require('node:fs');
 const semver = require('semver');
@@ -61,6 +62,8 @@ if (require.main === module) {
             execFileSync('git', ['rev-parse', '--git-dir'], { stdio: 'ignore' });
             execFileSync('git', ['config', 'merge.changelog.name', 'CHANGELOG 段落合併']);
             execFileSync('git', ['config', 'merge.changelog.driver', 'node scripts/merge-changelog.cjs %O %A %B']);
+            execFileSync('git', ['config', 'merge.packagejson.name', 'package.json 逐欄位合併']);
+            execFileSync('git', ['config', 'merge.packagejson.driver', 'node scripts/merge-package-json.cjs %O %A %B']);
         } catch {}
         process.exit(0);
     }

@@ -442,14 +442,15 @@ npm run release:live -- 26.1.1
 git switch main    && git merge --no-ff hotfix/26.1.1 -m "hotfix: v26.1.1" && git push
 git switch develop && git merge --no-ff main -m "merge: v26.1.1 back to develop" && git push
 
-# ⑤ 補進每一條還活著的 release 分支 ← 各撞一次 package.json 衝突,選新的
+# ⑤ 補進每一條還活著的 release 分支(npm run release:live 的收尾 script 會自動做,這裡是手動版)
 #    已進 rc 的從 main 補,還在 beta 的從 develop 補(見下方警語)
+#    package.json 由 merge driver 自動逐欄位合併;package-lock.json 一定會衝突,重新產生即可
 git switch release/26.2 && git merge --no-ff main -m "fix: 併入 hotfix v26.1.1"
-git checkout --ours package.json package-lock.json && git add -A && git merge --continue
+git checkout --ours package-lock.json && npm install --package-lock-only && git add -A && git merge --continue
 npm run release:rc                        # → 26.2.0-rc.1
 
 git switch release/26.3 && git merge --no-ff develop -m "fix: 併入 hotfix v26.1.1"
-git checkout --ours package.json package-lock.json && git add -A && git merge --continue
+git checkout --ours package-lock.json && npm install --package-lock-only && git add -A && git merge --continue
 npm run release:beta                      # → 26.3.0-beta.1
 
 git push origin --delete hotfix/26.1.1 && git branch -D hotfix/26.1.1
@@ -653,7 +654,7 @@ git switch release/1.1 && git merge --no-ff develop   # 還在 beta 從 develop;
 
 - **beta / rc 會自動略過**,只有正式版才收尾
 - **② 的 merge 訊息**:hotfix 寫 `fix: 併入 hotfix vX.Y.Z`(會進那條線下一顆的 CHANGELOG);release 上線寫 `chore: 併入 vX.Y.Z`(不進 CHANGELOG,上一版的段落已經寫過)
-- **② 的版號衝突自動處理**:`package.json` / `package-lock.json` 保留 release 分支的版號,`CHANGELOG.md` 以版本段落合併(見第 13 節)
+- **衝突自動處理(① ② 都適用)**:`package.json` 逐欄位合併(版號取新的、對方的套件改動保留)、`package-lock.json` 重新產生、`CHANGELOG.md` 以版本段落合併(見第 13 節)
 - **其他檔案衝突**:① 中止並印出接手指令;② 跳過那條分支、不動它,最後列出要手動同步的分支和指令。這時 tag 已經推上去了,照提示接手即可
 
 hook 的輸出預設會被 release-it 收起來,要看完整過程加 `--verbose`。
@@ -1088,15 +1089,25 @@ git log release/1.0..main --oneline    # 有輸出就先同步再發
 
 版號本來就該單調遞增,所以「選新的」不管站在哪條分支都對。
 
-`--ours` / `--theirs` 的意義會隨分支反轉容易記錯,直接看衝突內容判斷:
+**這條規則已經由 merge driver 自動執行**(`.gitattributes` 的 `package.json merge=packagejson`,`scripts/merge-package-json.cjs`),以 JSON 欄位為單位三方合併:
 
+| 情況 | 結果 |
+|---|---|
+| 只有一邊改的欄位(例如 hotfix 升級了某個套件) | 採用有改的那邊 |
+| 兩邊都改了 `version` | 取比較新的 |
+| 兩邊把同一個欄位改成不同值(例如同一個套件升到不同版本) | 標成衝突,留給人決定 |
+
+> ⚠️ **不要用 `git checkout --ours package.json`。** 那會拿整份檔案,連對方對 `dependencies` 的改動也一起丟掉。實測:hotfix 升級了 `dayjs`、新增 `ms`,同步進 release 分支後兩個都不見了,版號卻是對的,完全看不出來。改用逐欄位合併後重測,release 分支正確拿到兩個套件,版號也維持自己的。
+>
+> 如果你們之前手動同步時用過 `checkout --ours`,可以比對一下 main 跟進行中的 release 分支的 `dependencies` 有沒有差異。
+
+`package-lock.json` 設成 `-merge`,一定會標成衝突;`package.json` 合好之後重新產生就好:
+
+```bash
+git checkout --ours package-lock.json && npm install --package-lock-only
 ```
-<<<<<<< HEAD
-  "version": "1.6.0-beta.0",     ← 選這個(新)
-=======
-  "version": "1.5.1",
->>>>>>> develop
-```
+
+真的衝突時(driver 標出衝突標記),手動解的原則一樣:`version` 選新的,套件版本依實際需要決定。
 
 ### `package-lock.json`
 
@@ -1179,8 +1190,9 @@ git branch --contains $(git rev-parse main) | grep release/
 |---|---|
 | `.release-it.cjs` | release-it 設定:版號規則、CHANGELOG 格式、`getSemverTags` patch、收尾 hook |
 | `scripts/release-finish.cjs` | 正式版發完自動收尾(併 main → develop、同步其他 release 分支、刪分支) |
-| `scripts/merge-changelog.cjs` | CHANGELOG.md 以版本段落合併的 git merge driver |
-| `.gitattributes` | `CHANGELOG.md merge=changelog`、`package-lock.json -merge` |
+| `scripts/merge-changelog.cjs` | CHANGELOG.md 以版本段落合併的 git merge driver(`--install` 會一併設定兩個 driver) |
+| `scripts/merge-package-json.cjs` | package.json 逐欄位三方合併的 git merge driver |
+| `.gitattributes` | `CHANGELOG.md merge=changelog`、`package.json merge=packagejson`、`package-lock.json -merge` |
 | `.nvmrc` | Node 22(`.release-it.cjs` 要 require ESM,需要 >= 22.12) |
 | `docs/release-workflow.md` + `docs/images/*.svg` | 團隊規範(選配) |
 
