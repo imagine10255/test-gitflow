@@ -1210,13 +1210,23 @@ git branch --contains $(git rev-parse main) | grep release/
     "release-it": "20.2.1",
     "@release-it/conventional-changelog": "11.0.1",
     "conventional-changelog": "7.2.1",
+    "conventional-changelog-conventionalcommits": "9.3.1",
     "semver": "7.8.5"
   },
   "engines": { "node": ">=22.12" }
 }
 ```
 
-**版本一定要鎖精確值**(不要 `^`)。`.release-it.cjs` 的 patch 改的是 `conventional-changelog` 的內部,升級後可能悄悄失效。`conventional-changelog` 要另外列進 devDependencies,確保它被裝在最外層、而且跟 plugin 用的是同一份——裝完用 `npm ls conventional-changelog` 確認只有一份(plugin 那份顯示 `deduped`)。
+**這四個套件都要明確列出,版本鎖精確值**(不要 `^`)。
+
+> ⚠️ **少列 `conventional-changelog` 或 `conventional-changelog-conventionalcommits` 會發不了版。** 它們是 plugin 的相依套件,不列的話 npm 可能把它們塞在 `node_modules/@release-it/conventional-changelog/node_modules/` 底下:
+>
+> - 少了 `conventional-changelog`:`.release-it.cjs` 的 patch 從最外層載入找不到,錯誤訊息只有一句 `Invalid configuration file at .release-it`
+> - 少了 `conventional-changelog-conventionalcommits`:`Unable to load the "conventionalcommits" preset`
+>
+> 實際在 GameHelper 專案兩個都踩到了(test-gitflow 剛好被放在最外層,所以沒發現)。`Invalid configuration file` 看不出原因時,用 `node -e "require('./.release-it.cjs')"` 可以看到真正的錯誤。
+
+`.release-it.cjs` 的 patch 改的是 `conventional-changelog` 的內部,升級後可能悄悄失效。`conventional-changelog` 要另外列進 devDependencies,確保它被裝在最外層、而且跟 plugin 用的是同一份——裝完用 `npm ls conventional-changelog conventional-changelog-conventionalcommits` 確認各只有一份(plugin 那份顯示 `deduped`)。
 
 ### 第一次導入要做的事
 
