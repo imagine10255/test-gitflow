@@ -550,11 +550,50 @@ module.exports = {
 
 ```json
 {
-  "release:beta": "release-it --preRelease=beta --ci",
-  "release:rc":   "release-it --preRelease=rc --ci",
-  "release:live": "release-it --increment=release --ci"
+  "release:beta": "node scripts/release.cjs beta",
+  "release:rc":   "node scripts/release.cjs rc",
+  "release:live": "node scripts/release.cjs live"
 }
 ```
+
+`scripts/release.cjs` 會在執行 release-it 前先顯示**確認畫面**,輸入 `y` 才真的發版(預設 N)。這是因為同事常把版號打錯。實際對應的 release-it 指令:
+
+| 指令 | 實際執行 |
+|---|---|
+| `release:beta` | `release-it --preRelease=beta --ci` |
+| `release:rc` | `release-it --preRelease=rc --ci` |
+| `release:live` | `release-it --increment=release --ci` |
+
+版號照樣用 `--` 帶入(`npm run release:beta -- 26.16.0-beta.0`),其他參數原樣傳給 release-it(例如 `--dry-run`)。
+
+```
+┌─ 發版確認 ─────────────────────────────────────
+│ 分支     release/26.15
+│ 類型     rc(預發環境)
+│ 版號     26.15.0-beta.1  →  26.15.0-rc.0
+│ tag      v26.15.0-rc.0
+│ 指令     release-it --preRelease=rc --ci
+└────────────────────────────────────────────────
+
+這次會寫進 CHANGELOG 的內容:
+  ## [26.15.0-rc.0](.../compare/v26.15.0-beta.1...v26.15.0-rc.0) (2026-10-19)
+  ...
+
+確定要發布 26.15.0-rc.0 嗎?(y/N)
+```
+
+版號是用 `release-it --release-version` 預先算出來的,只計算,不會改任何檔案。下面這些情況會**直接擋下,不會出現 y/N**:
+
+| 情況 | 例子 |
+|---|---|
+| 不在 `release/*`、`hotfix/*` | 在 develop 下指令 |
+| 前兩碼跟分支名對不上 | 在 `release/26.15` 打成 `26.16.0-beta.0` |
+| hotfix 上線版號跟分支名不同 | `hotfix/26.14.1` 發成 `26.14.2` |
+| 版號類型跟指令不符 | `release:live -- 26.15.0-beta.2`、`release:beta -- 26.15.0-rc.0` |
+| rc 退回 beta | 目前 `26.15.0-rc.1`,下 `release:beta` |
+| 版號沒有比目前新、tag 已存在 | 重發同一顆 |
+
+非互動環境(CI)沒辦法回答 y/N,要加 `--yes`:`npm run release:beta -- --yes`。
 
 > ⚠️ **beta / rc 也要寫 CHANGELOG,不能加 `--no-plugins.@release-it/conventional-changelog.infile`。**
 >
@@ -1189,6 +1228,7 @@ git branch --contains $(git rev-parse main) | grep release/
 | 檔案 | 作用 |
 |---|---|
 | `.release-it.cjs` | release-it 設定:版號規則、CHANGELOG 格式、`getSemverTags` patch、收尾 hook |
+| `scripts/release.cjs` | 發版前的確認畫面:預算版號、擋下打錯的版號、輸入 y 才執行 release-it |
 | `scripts/release-finish.cjs` | 正式版發完自動收尾(併 main → develop、同步其他 release 分支、刪分支) |
 | `scripts/merge-changelog.cjs` | CHANGELOG.md 以版本段落合併的 git merge driver(`--install` 會一併設定兩個 driver) |
 | `scripts/merge-package-json.cjs` | package.json 逐欄位三方合併的 git merge driver |
@@ -1201,9 +1241,9 @@ git branch --contains $(git rev-parse main) | grep release/
 ```json
 {
   "scripts": {
-    "release:beta": "release-it --preRelease=beta --ci",
-    "release:rc": "release-it --preRelease=rc --ci",
-    "release:live": "release-it --increment=release --ci",
+    "release:beta": "node scripts/release.cjs beta",
+    "release:rc": "node scripts/release.cjs rc",
+    "release:live": "node scripts/release.cjs live",
     "prepare": "node scripts/merge-changelog.cjs --install"
   },
   "devDependencies": {

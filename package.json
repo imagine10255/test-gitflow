@@ -7,9 +7,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "release:beta": "release-it --preRelease=beta --ci",
-    "release:rc": "release-it --preRelease=rc --ci",
-    "release:live": "release-it --increment=release --ci",
+    "release:beta": "node scripts/release.cjs beta",
+    "release:rc": "node scripts/release.cjs rc",
+    "release:live": "node scripts/release.cjs live",
     "prepare": "node scripts/merge-changelog.cjs --install"
   },
   "repository": {
