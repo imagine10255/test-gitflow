@@ -64,7 +64,9 @@ if (!next) {
         errors.push(`release:${mode} 應該發 ${MODES[mode].pre ? `-${MODES[mode].pre}.N` : '不帶 -beta / -rc 的正式版號'},但算出來是 ${next}`);
     }
     if (semver.valid(current) && !semver.gt(next, current)) errors.push(`${next} 沒有比目前的 ${current} 新`);
-    if (semver.prerelease(current)?.[0] === 'rc' && preType === 'beta') errors.push(`目前已經是 ${current},rc 不能退回 beta`);
+    // 只擋同一個版本退回(27.0.0-rc.0 → 27.0.0-beta.x);換到下一版(27.1.0-beta.0)是新的一條線,允許
+    const sameBase = semver.valid(current) && semver.coerce(current).version === semver.coerce(next).version;
+    if (sameBase && semver.prerelease(current)?.[0] === 'rc' && preType === 'beta') errors.push(`目前已經是 ${current},rc 不能退回 beta`);
 
     const m = branch && branch.match(/^release\/(\d+)\.(\d+)$/);
     if (m && (semver.major(next) !== +m[1] || semver.minor(next) !== +m[2])) {
@@ -76,7 +78,8 @@ if (!next) {
     if (git('rev-parse', '-q', '--verify', `refs/tags/v${next}`)) errors.push(`tag v${next} 已經存在`);
     else if (git('ls-remote', '--tags', 'origin', `refs/tags/v${next}`)) errors.push(`遠端已經有 tag v${next}`);
 
-    if (explicit && semver.valid(current) && semver.prerelease(current) && semver.diff(current, next) !== 'prerelease' && preType) {
+    // 分支名已經對過前兩碼(上面的 m / h),這裡只在分支名對不出版號時提醒
+    if (!m && !h && explicit && semver.valid(current) && semver.prerelease(current) && semver.diff(current, next) !== 'prerelease' && preType) {
         warnings.push(`指定的版號 ${next} 跟目前的 ${current} 不在同一條線上,確定不是打錯?`);
     }
 }
